@@ -1,10 +1,19 @@
 """
-Capa de Datos / Utilidades – Cadenas de Markov (estados transitorios / ergódicas)
-=================================================================================
-Operaciones fundamentales para cadenas de Markov ergódicas:
-  1. Chapman-Kolmogorov:       π(n) = π(0) · P^n
-  2. Distribución estacionaria: πP = π,  Σπᵢ = 1
-  3. Tiempo medio de primer pasaje (Mean First Passage Time)
+Capa de Datos / Utilidades – Cadenas de Markov
+===============================================
+Operaciones para cadenas de Markov:
+
+  A) Ergódicas (estados transitorios):
+    1. Chapman-Kolmogorov:       π(n) = π(0) · P^n
+    2. Distribución estacionaria: πP = π,  Σπᵢ = 1
+    3. Tiempo medio de primer pasaje (Mean First Passage Time)
+
+  B) Absorbentes:
+    1. Forma canónica:  [ I  0 ]
+                        [ R  Q ]
+    2. Matriz fundamental:  N = (I − Q)⁻¹
+    3. Probabilidades de absorción:  B = N · R
+    4. Predicción con vector inicial b:  b · B
 """
 
 from __future__ import annotations
@@ -282,3 +291,198 @@ def classify_states(P: Matrix) -> dict:
         "is_irreducible": is_irreducible,
         "is_ergodic": is_irreducible,  # Para simplificar (falta verificar aperiodicidad)
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  CADENAS DE MARKOV CON ESTADOS ABSORBENTES
+# ═══════════════════════════════════════════════════════════════════════════
+
+def identify_absorbing_states(P: Matrix) -> List[int]:
+    """
+    Identifica los estados absorbentes de la matriz P.
+    Un estado i es absorbente si P[i][i] == 1 (y el resto de la fila es 0).
+
+    Returns:
+        Lista de índices (0-based) de estados absorbentes.
+    """
+    validate_stochastic_matrix(P)
+    n = len(P)
+    absorbing = []
+    for i in range(n):
+        if abs(P[i][i] - 1.0) < 1e-9:
+            # Verificar que el resto sea 0
+            all_zero = all(abs(P[i][j]) < 1e-9 for j in range(n) if j != i)
+            if all_zero:
+                absorbing.append(i)
+    return absorbing
+
+
+def canonical_form(
+    P: Matrix,
+    absorbing_indices: List[int] | None = None,
+) -> dict:
+    """
+    Reordena P en forma canónica para cadenas absorbentes:
+
+        | I  0 |     absorbing (s estados)
+        | R  Q |     transient  (t estados)
+
+    Args:
+        P: Matriz de transición original.
+        absorbing_indices: Índices de estados absorbentes (auto-detectados si None).
+
+    Returns:
+        dict con:
+          - order_absorbing: índices originales de estados absorbentes
+          - order_transient: índices originales de estados transitorios
+          - I_mat: matriz identidad s×s
+          - O_mat: matriz de ceros s×t
+          - R: sub-matriz t×s (transitorios → absorbentes)
+          - Q: sub-matriz t×t (transitorios → transitorios)
+          - P_canonical: la matriz completa reordenada (s+t)×(s+t)
+    """
+    validate_stochastic_matrix(P)
+    n = len(P)
+
+    if absorbing_indices is None:
+        absorbing_indices = identify_absorbing_states(P)
+
+    if len(absorbing_indices) == 0:
+        raise ValueError(
+            "No se encontraron estados absorbentes (ninguna fila tiene P[i][i]=1). "
+            "Esta cadena no es absorbente."
+        )
+
+    absorbing_set = set(absorbing_indices)
+    transient_indices = [i for i in range(n) if i not in absorbing_set]
+
+    if len(transient_indices) == 0:
+        raise ValueError(
+            "Todos los estados son absorbentes. No hay estados transitorios."
+        )
+
+    s = len(absorbing_indices)   # cantidad de absorbentes
+    t = len(transient_indices)   # cantidad de transitorios
+
+    # Sub-matrices
+    # R (t × s): transitorios → absorbentes
+    R = [[P[i][j] for j in absorbing_indices] for i in transient_indices]
+
+    # Q (t × t): transitorios → transitorios
+    Q = [[P[i][j] for j in transient_indices] for i in transient_indices]
+
+    # I (s × s) y 0 (s × t)
+    I_mat = identity(s)
+    O_mat = [[0.0] * t for _ in range(s)]
+
+    # Matriz canónica completa
+    P_canonical = []
+    for i in range(s):
+        P_canonical.append(I_mat[i] + O_mat[i])
+    for i in range(t):
+        P_canonical.append(R[i] + Q[i])
+
+    return {
+        "order_absorbing": absorbing_indices,
+        "order_transient": transient_indices,
+        "s": s,
+        "t": t,
+        "I_mat": I_mat,
+        "O_mat": O_mat,
+        "R": R,
+        "Q": Q,
+        "P_canonical": P_canonical,
+    }
+
+
+def fundamental_matrix(Q: Matrix) -> Matrix:
+    """
+    Calcula la matriz fundamental N = (I − Q)⁻¹.
+
+    N_ij = número esperado de veces que se visita el estado transitorio j
+           partiendo del estado transitorio i antes de la absorción.
+
+    Args:
+        Q: Sub-matriz cuadrada de transiciones entre estados transitorios.
+
+    Returns:
+        Matriz fundamental N.
+    """
+    t = len(Q)
+    I_t = identity(t)
+    I_minus_Q = subtract(I_t, Q)
+    N = inverse(I_minus_Q)
+    return N
+
+
+def absorption_probabilities(N: Matrix, R: Matrix) -> Matrix:
+    """
+    Calcula las probabilidades de absorción B = N · R.
+
+    B_ij = probabilidad de ser absorbido por el estado absorbente j
+           partiendo del estado transitorio i.
+
+    Args:
+        N: Matriz fundamental (t × t).
+        R: Sub-matriz de transición transitorios → absorbentes (t × s).
+
+    Returns:
+        Matriz B (t × s).
+    """
+    return multiply(N, R)
+
+
+def absorbing_chain_analysis(
+    P: Matrix,
+    b: List[float] | None = None,
+    absorbing_indices: List[int] | None = None,
+) -> dict:
+    """
+    Análisis completo de una cadena de Markov absorbente.
+
+    Pasos:
+      1. Identificar estados absorbentes y reordenar en forma canónica
+      2. Calcular la matriz fundamental  N = (I − Q)⁻¹
+      3. Calcular probabilidades de absorción  B = N · R
+      4. (Opcional) Si se da un vector b (distribución sobre estados transitorios):
+         Resultado = b · B
+
+    Args:
+        P: Matriz de transición original.
+        b: Vector de distribución inicial sobre estados transitorios (opcional).
+        absorbing_indices: Índices de estados absorbentes (auto-detectados si None).
+
+    Returns:
+        Diccionario con toda la información intermedia y final.
+    """
+    canon = canonical_form(P, absorbing_indices)
+
+    Q = canon["Q"]
+    R = canon["R"]
+    t = canon["t"]
+
+    # Paso 2: Matriz fundamental
+    N = fundamental_matrix(Q)
+
+    # Paso 3: Probabilidades de absorción
+    B = absorption_probabilities(N, R)
+
+    result = {
+        **canon,
+        "N": N,
+        "B": B,
+    }
+
+    # Paso 4: Predicción con vector b (opcional)
+    if b is not None:
+        if len(b) != t:
+            raise ValueError(
+                f"El vector b tiene {len(b)} elementos, pero hay {t} estados transitorios."
+            )
+        # b · B  →  vector fila × matriz
+        b_mat = [b]
+        bB = multiply(b_mat, B)
+        result["b"] = b
+        result["b_B"] = bB[0]
+
+    return result

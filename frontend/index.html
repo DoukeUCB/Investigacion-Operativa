@@ -23,6 +23,7 @@
                 <nav class="nav-tabs">
                     <button class="nav-tab active" data-tab="calculator">Calculadora</button>
                     <button class="nav-tab" data-tab="markov">Cadenas de Markov</button>
+                    <button class="nav-tab" data-tab="absorbing">Estados Absorbentes</button>
                 </nav>
             </div>
         </header>
@@ -261,6 +262,95 @@
                 </section>
             </div>
 
+            <!-- ═══════════ TAB 3: CADENAS ABSORBENTES ═══════════ -->
+            <div id="tab-absorbing" class="tab-content">
+
+                <!-- Configuración -->
+                <section class="config-panel">
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="abs-size">Número de estados</label>
+                            <select id="abs-size">
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Nombres de estados -->
+                <section class="config-panel" style="margin-top:-12px">
+                    <div class="config-row">
+                        <div class="config-group" style="flex:1">
+                            <label>Nombres de estados (opcional)</label>
+                            <div id="abs-state-names" class="state-names-row"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Casillas para marcar estados absorbentes -->
+                <section class="config-panel" style="margin-top:-12px">
+                    <div class="config-row">
+                        <div class="config-group" style="flex:1">
+                            <label>Marcar estados absorbentes <span style="color:var(--text-muted);font-weight:400">(auto-detectados si P[i][i]=1)</span></label>
+                            <div id="abs-checkboxes" class="abs-checkboxes-row"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Matriz P -->
+                <section class="matrices-area">
+                    <div class="matrices-row">
+                        <div class="matrix-card">
+                            <div class="matrix-header">
+                                <h3>Matriz de Transición P</h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Cargar ejemplo" onclick="AbsorbingApp.loadExample()">📖</button>
+                                    <button class="btn-icon" title="Limpiar" onclick="MatrixUI.clear('abs')">✕</button>
+                                </div>
+                            </div>
+                            <p class="matrix-hint">Cada fila debe sumar 1. Los estados absorbentes tienen P[i][i]=1</p>
+                            <div class="matrix-bracket">
+                                <div class="bracket-left"></div>
+                                <div class="matrix-grid" id="matrix-abs-grid"></div>
+                                <div class="bracket-right"></div>
+                            </div>
+                            <div id="abs-row-sums" class="row-sums"></div>
+                        </div>
+                    </div>
+
+                    <!-- Vector b opcional -->
+                    <div class="matrices-row" style="margin-top:1rem">
+                        <div class="matrix-card markov-pi-card">
+                            <div class="matrix-header">
+                                <h3>Vector b (distribución sobre transitorios) <span style="color:var(--text-muted);font-weight:400">— opcional</span></h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Limpiar" onclick="AbsorbingApp.clearVectorB()">✕</button>
+                                </div>
+                            </div>
+                            <p class="matrix-hint">Cantidad inicial en cada estado transitorio. Dejar vacío si no aplica.</p>
+                            <div id="abs-vector-b" class="markov-pi0-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="markov-actions">
+                        <button class="btn-calculate btn-markov" id="btn-abs-analyze" onclick="AbsorbingApp.runAnalysis()">
+                            <span class="btn-text">Analizar Cadena Absorbente</span>
+                            <span class="btn-icon-arrow">→</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Resultados Absorbente -->
+                <section class="result-section hidden" id="abs-result-section">
+                    <div id="abs-results-container"></div>
+                </section>
+            </div>
+
         </main>
 
         <footer class="app-footer">
@@ -271,5 +361,6 @@
     <script src="js/matrix.js"></script>
     <script src="js/app.js"></script>
     <script src="js/markov.js"></script>
+    <script src="js/absorbing.js"></script>
 </body>
 </html>

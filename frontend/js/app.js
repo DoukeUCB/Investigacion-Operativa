@@ -61,6 +61,9 @@ const App = (() => {
                 if (tab.dataset.tab === 'markov' && typeof MarkovApp !== 'undefined') {
                     MarkovApp.init();
                 }
+                if (tab.dataset.tab === 'absorbing' && typeof AbsorbingApp !== 'undefined') {
+                    AbsorbingApp.init();
+                }
             });
         });
 

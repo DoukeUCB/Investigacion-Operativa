@@ -187,6 +187,11 @@ def list_markov_operations():
             "requires": ["matrix_p"],
             "optional": ["pi_0", "steps", "state_names"],
         },
+        "absorbing_analysis": {
+            "description": "Análisis de cadena absorbente (forma canónica, N, B, b·B)",
+            "requires": ["matrix_p"],
+            "optional": ["state_names", "absorbing_states", "vector_b"],
+        },
     }
     return jsonify({"success": True, "operations": operations})
 

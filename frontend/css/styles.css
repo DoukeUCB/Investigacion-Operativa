@@ -1181,3 +1181,77 @@ body {
         font-size: 0.85rem;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Cadenas Absorbentes – Estilos adicionales
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Checkboxes para marcar estados absorbentes ── */
+.abs-checkboxes-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.abs-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.abs-checkbox-label:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.abs-checkbox-label:has(input:checked) {
+    border-color: var(--success);
+    background: rgba(16, 185, 129, 0.08);
+    color: var(--success);
+}
+
+.abs-checkbox {
+    accent-color: var(--success);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+/* ── Sub-matrices side by side ── */
+.abs-submatrices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.abs-submatrices .markov-subsection {
+    flex: 1;
+    min-width: 200px;
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* ── Dimension badge ── */
+.matrix-dim {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── Responsive absorbing ── */
+@media (max-width: 640px) {
+    .abs-submatrices {
+        flex-direction: column;
+    }
+}

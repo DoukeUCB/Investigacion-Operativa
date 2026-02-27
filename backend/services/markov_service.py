@@ -12,7 +12,7 @@ Matrix = List[List[float]]
 
 
 class MarkovService:
-    """Servicio para cadenas de Markov ergódicas (estados transitorios)."""
+    """Servicio para cadenas de Markov ergódicas y absorbentes."""
 
     @staticmethod
     def _round_vector(v: List[float], decimals: int = 8) -> List[float]:
@@ -41,6 +41,8 @@ class MarkovService:
             return self._mean_first_passage(payload)
         elif operation == "full_analysis":
             return self._full_analysis(payload)
+        elif operation == "absorbing_analysis":
+            return self._absorbing_analysis(payload)
         else:
             raise ValueError(f"Operación de Markov desconocida: '{operation}'")
 
@@ -201,3 +203,51 @@ class MarkovService:
             },
             "chapman_kolmogorov": ck_result,
         }
+
+    # ─────────────── Cadenas Absorbentes ───────────────
+
+    def _absorbing_analysis(self, payload: dict) -> Dict[str, Any]:
+        """Análisis completo de cadena de Markov absorbente."""
+        P = self._get_matrix(payload)
+        n = len(P)
+        names = self._get_state_names(payload, n)
+
+        # Detectar o usar los estados absorbentes indicados
+        absorbing_idx = payload.get("absorbing_states")
+        if absorbing_idx is not None:
+            absorbing_idx = [int(i) for i in absorbing_idx]
+        else:
+            absorbing_idx = markov.identify_absorbing_states(P)
+
+        # Vector b (distribución sobre transitorios) – opcional
+        b = payload.get("vector_b")
+        if b is not None:
+            b = [float(x) for x in b]
+
+        result = markov.absorbing_chain_analysis(P, b=b, absorbing_indices=absorbing_idx)
+
+        # Nombres reordenados
+        abs_names = [names[i] for i in result["order_absorbing"]]
+        trans_names = [names[i] for i in result["order_transient"]]
+
+        response = {
+            "type": "absorbing_analysis",
+            "state_names": names,
+            "absorbing_names": abs_names,
+            "transient_names": trans_names,
+            "absorbing_indices": result["order_absorbing"],
+            "transient_indices": result["order_transient"],
+            "s": result["s"],
+            "t": result["t"],
+            "P_canonical": self._round_matrix(result["P_canonical"], 6),
+            "Q": self._round_matrix(result["Q"], 6),
+            "R": self._round_matrix(result["R"], 6),
+            "N": self._round_matrix(result["N"], 6),
+            "B": self._round_matrix(result["B"], 6),
+        }
+
+        if b is not None and "b_B" in result:
+            response["b"] = self._round_vector(b, 6)
+            response["b_B"] = self._round_vector(result["b_B"], 6)
+
+        return response
