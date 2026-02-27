@@ -1,0 +1,1183 @@
+/* ══════════════════════════════════════════════════════════════
+   Calculadora de Matrices – Estilos
+   Investigación Operativa – UCB
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-card: #1e293b;
+    --bg-input: #0f172a;
+    --border: #334155;
+    --border-focus: #6366f1;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #6366f1;
+    --accent-hover: #818cf8;
+    --accent-glow: rgba(99, 102, 241, 0.3);
+    --success: #22c55e;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --font-main: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* ── App Container ── */
+.app-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Header ── */
+.app-header {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    font-size: 2rem;
+    background: linear-gradient(135deg, var(--accent), #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.logo h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.logo .subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+}
+
+.nav-tab {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-tab.active {
+    background: var(--accent);
+    color: white;
+}
+
+.nav-tab:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ── Config Panel ── */
+.config-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.config-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.config-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.config-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.config-group select,
+.config-group input {
+    padding: 10px 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 120px;
+}
+
+.config-group select:focus,
+.config-group input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+#operation-select {
+    min-width: 250px;
+}
+
+.dim-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dim-inputs select {
+    min-width: 60px;
+    text-align: center;
+}
+
+.dim-x {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ── Matrices Area ── */
+.matrices-area {
+    margin-bottom: 24px;
+}
+
+.matrices-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.matrix-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    flex: 1;
+    min-width: 280px;
+    max-width: 460px;
+}
+
+.matrix-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.matrix-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent-hover);
+}
+
+.matrix-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+}
+
+/* ── Matrix Brackets ── */
+.matrix-bracket {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    justify-content: center;
+}
+
+.bracket-left,
+.bracket-right {
+    width: 8px;
+    min-height: 40px;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+}
+
+.bracket-left {
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+}
+
+.bracket-right {
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+}
+
+/* ── Matrix Grid ── */
+.matrix-grid {
+    display: inline-grid;
+    gap: 6px;
+    padding: 8px 4px;
+}
+
+.matrix-grid input {
+    width: 64px;
+    height: 40px;
+    text-align: center;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    border-radius: 6px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.matrix-grid input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.matrix-grid input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.5;
+}
+
+/* ── Operator Symbol ── */
+.operator-symbol {
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--accent);
+    min-width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* ── Calculate Button ── */
+.calculate-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.btn-calculate {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--accent), #7c3aed);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.btn-calculate:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+.btn-calculate:active {
+    transform: translateY(0);
+}
+
+.btn-calculate .btn-icon-arrow {
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+}
+
+.btn-calculate:hover .btn-icon-arrow {
+    transform: translateX(4px);
+}
+
+/* ── Result Section ── */
+.result-section {
+    margin-bottom: 24px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.result-card {
+    background: var(--bg-card);
+    border: 1px solid var(--success);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
+}
+
+.result-card.error {
+    border-color: var(--error);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.result-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--success);
+}
+
+.result-card.error .result-header h3 {
+    color: var(--error);
+}
+
+/* ── Result Matrix Display ── */
+.result-matrix {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    justify-content: center;
+}
+
+.result-grid {
+    display: inline-grid;
+    gap: 4px;
+    padding: 8px 4px;
+}
+
+.result-grid .cell {
+    width: 72px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background: var(--bg-input);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.result-scalar {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--accent-hover);
+    padding: 20px;
+}
+
+.result-eigenvalues {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    padding: 12px;
+    line-height: 2;
+}
+
+.result-eigenvalues .eigen-label {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* ── Error Message ── */
+.error-message {
+    text-align: center;
+    color: var(--error);
+    font-size: 0.95rem;
+    padding: 12px;
+}
+
+/* ── History ── */
+.history-section {
+    margin-bottom: 40px;
+}
+
+.history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.history-header h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.btn-link {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: var(--font-main);
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.btn-link:hover {
+    color: var(--accent);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.history-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 20px;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.history-item:hover {
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.history-op {
+    font-weight: 600;
+    color: var(--accent-hover);
+    min-width: 160px;
+}
+
+.history-dims {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+.history-time {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+}
+
+/* ── Footer ── */
+.app-footer {
+    margin-top: auto;
+    padding: 20px 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+}
+
+.app-footer p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .config-row {
+        flex-direction: column;
+    }
+
+    .config-group select,
+    .config-group input,
+    #operation-select {
+        min-width: 100%;
+    }
+
+    .matrices-row {
+        flex-direction: column;
+    }
+
+    .matrix-card {
+        max-width: 100%;
+    }
+
+    .operator-symbol {
+        transform: rotate(90deg);
+    }
+
+    .matrix-grid input {
+        width: 52px;
+        height: 36px;
+        font-size: 0.8rem;
+    }
+
+    .result-grid .cell {
+        width: 60px;
+        height: 34px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ── Loading state ── */
+.btn-calculate.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-calculate.loading .btn-text::after {
+    content: '...';
+    animation: dots 1s steps(3) infinite;
+}
+
+@keyframes dots {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
+}
+
+/* ── Toast / Notification ── */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--success);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    animation: toastIn 0.3s ease-out;
+}
+
+.toast.error {
+    border-color: var(--error);
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Cadenas de Markov – Estilos
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Navegación por tabs ── */
+.nav-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 2rem;
+}
+
+.nav-tab {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.nav-tab:hover {
+    color: var(--text-primary);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.nav-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+/* ── Tab content ── */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Markov panels ── */
+.markov-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.markov-pi-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.markov-pi-card h3 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ── Config panel Markov ── */
+.markov-config {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+}
+
+.markov-config .config-group label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.markov-config .config-group select,
+.markov-config .config-group input {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    width: 100px;
+}
+
+/* ── State names row ── */
+.state-names-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.state-name-input {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.5rem;
+    width: 90px;
+    text-align: center;
+    transition: border-color 0.2s;
+}
+
+.state-name-input:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+/* ── Transition matrix (reuse grid styles) ── */
+
+/* ── Initial probability vector π(0) ── */
+.markov-pi0-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.pi0-entry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.pi0-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.pi0-entry input {
+    width: 64px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    padding: 0.4rem;
+    text-align: center;
+}
+
+.pi0-entry input:focus {
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* ── Row sums validation ── */
+.row-sums {
+    margin-top: 0.75rem;
+}
+
+.row-sums-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.row-sum {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    transition: all 0.2s;
+}
+
+.row-sum.valid {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.row-sum.invalid {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ── Markov action buttons ── */
+.markov-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.btn-markov {
+    padding: 0.65rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.btn-markov.primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: white;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.btn-markov.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.btn-secondary {
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+    background: rgba(99, 102, 241, 0.08);
+}
+
+.markov-individual-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ── Markov result cards ── */
+.markov-result-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.markov-result-card h3 {
+    color: var(--accent);
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.markov-subsection {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.markov-subsection:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.markov-subsection h4 {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* ── Probability vector display ── */
+.prob-vector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0.75rem 0;
+}
+
+.prob-item {
+    flex: 1;
+    min-width: 120px;
+    max-width: 200px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.prob-name {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.prob-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.prob-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+}
+
+.prob-bar-bg {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 0.2rem;
+}
+
+.prob-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #818cf8);
+    border-radius: 2px;
+    transition: width 0.5s ease-out;
+}
+
+/* ── Labeled matrix (with state headers) ── */
+.labeled-matrix-wrapper {
+    overflow-x: auto;
+    margin: 0.75rem 0;
+}
+
+.labeled-matrix {
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+}
+
+.labeled-matrix th,
+.labeled-matrix td {
+    padding: 0.45rem 0.65rem;
+    text-align: center;
+    border: 1px solid var(--border);
+}
+
+.labeled-matrix th {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.labeled-matrix td {
+    color: var(--text-primary);
+    background: var(--bg-input);
+}
+
+.labeled-matrix .corner-cell {
+    background: transparent;
+    border-color: transparent;
+}
+
+/* ── Equations display ── */
+.equations-block {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.75rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.8;
+}
+
+.equation {
+    color: var(--text-primary);
+    padding: 0.15rem 0;
+}
+
+.equation:nth-child(odd) {
+    color: var(--text-secondary);
+}
+
+/* ── Classification & badges ── */
+.classification-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.badge {
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+}
+
+.badge-ok {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-warn {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* ── Formula notes ── */
+.formula-note {
+    background: rgba(99, 102, 241, 0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.6rem 1rem;
+    margin: 0.75rem 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.formula-note code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(99, 102, 241, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.78rem;
+    color: var(--accent);
+}
+
+/* ── Interpretation block ── */
+.markov-interpretation {
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.markov-interpretation strong {
+    color: var(--text-primary);
+}
+
+/* ── Matrix hint text ── */
+.matrix-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+/* ── Example button ── */
+.btn-example {
+    padding: 0.4rem 0.8rem;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-example:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+/* ── Responsive Markov ── */
+@media (max-width: 640px) {
+    .markov-actions {
+        flex-direction: column;
+    }
+
+    .prob-item {
+        min-width: 100%;
+    }
+
+    .labeled-matrix {
+        font-size: 0.7rem;
+    }
+
+    .nav-tab {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+}
