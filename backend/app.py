@@ -177,10 +177,12 @@ def list_markov_operations():
         "steady_state": {
             "description": "Distribución estacionaria πP = π",
             "requires": ["matrix_p"],
+            "optional": ["pi_0", "state_names"],
         },
         "mean_first_passage": {
             "description": "Tiempo medio de primer pasaje M_ij",
             "requires": ["matrix_p"],
+            "optional": ["state_names"],
         },
         "full_analysis": {
             "description": "Análisis completo (estacionario + primer pasaje + Chapman-Kolmogorov)",
@@ -191,6 +193,11 @@ def list_markov_operations():
             "description": "Análisis de cadena absorbente (forma canónica, N, B, b·B)",
             "requires": ["matrix_p"],
             "optional": ["state_names", "absorbing_states", "vector_b"],
+        },
+        "probability_tree": {
+            "description": "Árbol de probabilidades de transición desde un estado inicial",
+            "requires": ["matrix_p", "initial_state", "steps"],
+            "optional": ["state_names", "prune_threshold"],
         },
     }
     return jsonify({"success": True, "operations": operations})
@@ -211,6 +218,5 @@ def serve_static(path):
 # ─────────────────── Main ───────────────────
 
 if __name__ == "__main__":
-    print("🚀 Servidor iniciado en http://localhost:5000")
-    print("📊 Calculadora de Matrices – Investigación Operativa")
+    print("Servidor iniciado en http://localhost:5000")
     app.run(debug=False, host="127.0.0.1", port=5000)

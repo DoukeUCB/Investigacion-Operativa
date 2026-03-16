@@ -64,6 +64,9 @@ const App = (() => {
                 if (tab.dataset.tab === 'absorbing' && typeof AbsorbingApp !== 'undefined') {
                     AbsorbingApp.init();
                 }
+                if (tab.dataset.tab === 'tree' && typeof TreeApp !== 'undefined') {
+                    TreeApp.init();
+                }
             });
         });
 

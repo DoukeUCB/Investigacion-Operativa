@@ -14,6 +14,10 @@ Operaciones para cadenas de Markov:
     2. Matriz fundamental:  N = (I − Q)⁻¹
     3. Probabilidades de absorción:  B = N · R
     4. Predicción con vector inicial b:  b · B
+
+  C) Árbol de probabilidades:
+    Genera la estructura jerárquica de transiciones desde un estado inicial
+    a lo largo de n pasos, con poda opcional por umbral mínimo.
 """
 
 from __future__ import annotations
@@ -53,22 +57,29 @@ def validate_stochastic_matrix(P: Matrix) -> None:
                 )
 
 
-def validate_probability_vector(pi: List[float], n: int) -> None:
-    """Verifica que π sea un vector de probabilidad válido de tamaño n."""
+def validate_state_vector(pi: List[float], n: int) -> None:
+    """
+    Verifica que un vector inicial de estados sea válido:
+    - Tamaño correcto
+    - Sin valores negativos
+    - Suma positiva (puede ser distribución o cantidades)
+    """
     if len(pi) != n:
         raise ValueError(
-            f"El vector π(0) tiene {len(pi)} elementos, pero P es {n}×{n}."
+            f"El vector inicial tiene {len(pi)} elementos, pero P es {n}×{n}."
         )
-    s = sum(pi)
-    if abs(s - 1.0) > 1e-6:
-        raise ValueError(
-            f"El vector π(0) suma {s:.6f}, debe sumar 1.0."
-        )
+
     for i, v in enumerate(pi):
         if v < -1e-9:
             raise ValueError(
-                f"π(0)[{i + 1}] = {v:.6f} es negativo."
+                f"vector[{i + 1}] = {v:.6f} es negativo."
             )
+
+    s = sum(pi)
+    if s <= 1e-12:
+        raise ValueError(
+            "El vector inicial debe tener suma positiva (> 0)."
+        )
 
 
 # ─────────────────── 1. Chapman-Kolmogorov ───────────────────
@@ -78,7 +89,9 @@ def chapman_kolmogorov(pi_0: List[float], P: Matrix, n: int) -> List[float]:
     Calcula π(n) = π(0) · P^n
 
     Args:
-        pi_0: Vector de probabilidad inicial (1×k como lista).
+          pi_0: Vector inicial (1×k como lista). Puede ser:
+              - distribución (suma = 1), o
+              - cantidades absolutas (autos, clientes, etc.).
         P:    Matriz de transición k×k.
         n:    Número de pasos (unidades de tiempo).
 
@@ -87,7 +100,7 @@ def chapman_kolmogorov(pi_0: List[float], P: Matrix, n: int) -> List[float]:
     """
     validate_stochastic_matrix(P)
     k = len(P)
-    validate_probability_vector(pi_0, k)
+    validate_state_vector(pi_0, k)
     if n < 0:
         raise ValueError("El número de pasos n debe ser ≥ 0.")
 
@@ -99,6 +112,13 @@ def chapman_kolmogorov(pi_0: List[float], P: Matrix, n: int) -> List[float]:
     pi_0_mat = [pi_0]
     result_mat = multiply(pi_0_mat, Pn)
     return result_mat[0]
+
+
+def scale_stationary_distribution(pi: List[float], total: float) -> List[float]:
+    """Escala una distribución estacionaria por un total para obtener cantidades."""
+    if total <= 0:
+        raise ValueError("El total para escalar debe ser > 0.")
+    return [x * total for x in pi]
 
 
 def chapman_kolmogorov_matrix(P: Matrix, n: int) -> Matrix:
@@ -486,3 +506,100 @@ def absorbing_chain_analysis(
         result["b_B"] = bB[0]
 
     return result
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  ÁRBOL DE PROBABILIDADES
+# ═══════════════════════════════════════════════════════════════════════════
+
+def build_probability_tree(
+    P: Matrix,
+    initial_state: int,
+    steps: int,
+    state_names: List[str] | None = None,
+    prune_threshold: float = 0.0,
+) -> dict:
+    """
+    Construye un árbol de probabilidades para una cadena de Markov.
+
+    El árbol muestra todas las transiciones posibles desde un estado inicial
+    a lo largo de n pasos, con la probabilidad acumulada de cada camino.
+
+    Args:
+        P: Matriz de transición (estocástica por filas).
+        initial_state: Índice del estado inicial (0-based).
+        steps: Número de pasos (niveles del árbol). Máximo 5.
+        state_names: Nombres opcionales para los estados.
+        prune_threshold: Probabilidad acumulada mínima para incluir un nodo.
+                         Ramas con prob < prune_threshold se podan (default 0).
+
+    Returns:
+        dict con:
+          - tree: estructura jerárquica {id, state, name, prob, cumulative, children}
+          - steps: pasos solicitados
+          - total_nodes: número total de nodos en el árbol
+          - state_names: nombres usados
+    """
+    validate_stochastic_matrix(P)
+    n = len(P)
+
+    if initial_state < 0 or initial_state >= n:
+        raise ValueError(
+            f"El estado inicial {initial_state} está fuera de rango [0, {n - 1}]."
+        )
+
+    if steps < 1:
+        raise ValueError("El número de pasos debe ser ≥ 1.")
+
+    if steps > 5:
+        raise ValueError(
+            "El número de pasos para el árbol está limitado a 5 "
+            "para evitar un crecimiento exponencial excesivo."
+        )
+
+    if state_names is None:
+        state_names = [f"E{i + 1}" for i in range(n)]
+
+    node_counter = [0]  # mutable counter
+
+    def _build_node(state_idx: int, cumulative_prob: float, current_step: int) -> dict:
+        """Construye recursivamente un nodo del árbol."""
+        node_id = node_counter[0]
+        node_counter[0] += 1
+
+        node = {
+            "id": node_id,
+            "state": state_idx,
+            "name": state_names[state_idx],
+            "prob": round(cumulative_prob, 8),
+            "step": current_step,
+            "children": [],
+        }
+
+        if current_step < steps:
+            for j in range(n):
+                trans_prob = P[state_idx][j]
+                if trans_prob < TOLERANCE:
+                    continue  # No hay transición
+
+                child_cumulative = cumulative_prob * trans_prob
+
+                # Podar si la probabilidad acumulada es muy baja
+                if child_cumulative < prune_threshold:
+                    continue
+
+                child = _build_node(j, child_cumulative, current_step + 1)
+                child["transition_prob"] = round(trans_prob, 6)
+                node["children"].append(child)
+
+        return node
+
+    root = _build_node(initial_state, 1.0, 0)
+
+    return {
+        "tree": root,
+        "steps": steps,
+        "total_nodes": node_counter[0],
+        "state_names": state_names,
+        "num_states": n,
+    }

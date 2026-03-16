@@ -300,13 +300,13 @@ const MarkovApp = (() => {
             </div>
 
             <div class="markov-subsection">
-                <h4>Vector π(0) (distribución inicial)</h4>
-                ${renderProbVector(r.pi_0, names)}
+                <h4>Vector π(0) (estado inicial)</h4>
+                ${renderStateVector(r.pi_0, names, r.total_units)}
             </div>
 
             <div class="markov-subsection">
-                <h4>Vector π(${r.steps}) (distribución en el paso ${r.steps})</h4>
-                ${renderProbVector(r.pi_n, names)}
+                <h4>Vector π(${r.steps}) (estado en el paso ${r.steps})</h4>
+                ${renderStateVector(r.pi_n, names, r.total_units)}
             </div>
 
             <div class="markov-subsection">
@@ -319,6 +319,7 @@ const MarkovApp = (() => {
     // ── Estado estacionario ──
     function renderSteadyState(r) {
         const names = r.state_names;
+        const hasCounts = Array.isArray(r.final_counts);
         return `
         <div class="result-card markov-result-card">
             <div class="result-header">
@@ -336,6 +337,12 @@ const MarkovApp = (() => {
                 <h4>Vector estacionario π</h4>
                 ${renderProbVector(r.pi, names)}
             </div>
+
+            ${hasCounts ? `
+            <div class="markov-subsection">
+                <h4>Proyección en cantidades (total = ${r.total_units})</h4>
+                ${renderStateVector(r.final_counts, names, r.total_units)}
+            </div>` : ''}
 
             <div class="markov-interpretation">
                 <h4>Interpretación</h4>
@@ -420,6 +427,12 @@ const MarkovApp = (() => {
                 ${renderProbVector(r.steady_state.pi, names)}
             </div>
 
+            ${Array.isArray(r.steady_state.final_counts) ? `
+            <div class="markov-subsection">
+                <h4>Proyección en cantidades (total = ${r.steady_state.total_units})</h4>
+                ${renderStateVector(r.steady_state.final_counts, names, r.steady_state.total_units)}
+            </div>` : ''}
+
             <div class="markov-interpretation">
                 <h4>Interpretación</h4>
                 <ul>
@@ -462,12 +475,12 @@ const MarkovApp = (() => {
 
                 <div class="markov-subsection">
                     <h4>Vector π(0)</h4>
-                    ${renderProbVector(ck.pi_0, names)}
+                    ${renderStateVector(ck.pi_0, names, ck.total_units)}
                 </div>
 
                 <div class="markov-subsection">
                     <h4>Vector π(${ck.steps})</h4>
-                    ${renderProbVector(ck.pi_n, names)}
+                    ${renderStateVector(ck.pi_n, names, ck.total_units)}
                 </div>
 
                 <div class="markov-subsection">
@@ -495,6 +508,29 @@ const MarkovApp = (() => {
                 <span class="prob-name">${names[i]}</span>
                 <span class="prob-value">${display}</span>
                 <span class="prob-pct">(${pct}%)</span>
+            </div>`;
+        });
+        html += '</div>';
+        return html;
+    }
+
+    function renderStateVector(vec, names, totalUnits = null) {
+        const total = totalUnits && totalUnits > 0
+            ? totalUnits
+            : vec.reduce((a, b) => a + b, 0);
+
+        let html = '<div class="prob-vector">';
+        vec.forEach((v, i) => {
+            const pct = total > 0 ? ((v / total) * 100) : 0;
+            const display = Number.isInteger(v) ? v : parseFloat(v.toFixed(6));
+            html += `
+            <div class="prob-item">
+                <div class="prob-bar-bg">
+                    <div class="prob-bar" style="width:${Math.min(pct, 100)}%"></div>
+                </div>
+                <span class="prob-name">${names[i]}</span>
+                <span class="prob-value">${display}</span>
+                <span class="prob-pct">(${pct.toFixed(2)}%)</span>
             </div>`;
         });
         html += '</div>';

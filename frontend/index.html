@@ -24,6 +24,7 @@
                     <button class="nav-tab active" data-tab="calculator">Calculadora</button>
                     <button class="nav-tab" data-tab="markov">Cadenas de Markov</button>
                     <button class="nav-tab" data-tab="absorbing">Estados Absorbentes</button>
+                    <button class="nav-tab" data-tab="tree">Árbol de Probabilidades</button>
                 </nav>
             </div>
         </header>
@@ -231,7 +232,7 @@
                                     <button class="btn-icon" title="Limpiar" onclick="MarkovApp.clearPi0()">✕</button>
                                 </div>
                             </div>
-                            <p class="matrix-hint">Distribución inicial (suma = 1)</p>
+                            <p class="matrix-hint">Puede ser distribución (suma=1) o cantidades (ej: 200,100,50)</p>
                             <div id="markov-pi0-grid" class="markov-pi0-grid"></div>
                         </div>
                     </div>
@@ -351,6 +352,106 @@
                 </section>
             </div>
 
+            <!-- ═══════════ TAB 4: ÁRBOL DE PROBABILIDADES ═══════════ -->
+            <div id="tab-tree" class="tab-content">
+
+                <!-- Configuración -->
+                <section class="config-panel">
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="tree-size">Número de estados</label>
+                            <select id="tree-size">
+                                <option value="2" selected>2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="tree-initial">Estado inicial</label>
+                            <select id="tree-initial">
+                                <option value="0">Estado 1</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="tree-steps">Pasos (niveles)</label>
+                            <select id="tree-steps">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="tree-prune">Umbral de poda</label>
+                            <input type="number" id="tree-prune" value="0.01" min="0" max="0.5" step="0.01"
+                                   title="Ramas con probabilidad acumulada menor a este valor se eliminan">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Nombres de estados -->
+                <section class="config-panel" style="margin-top:-12px">
+                    <div class="config-row">
+                        <div class="config-group" style="flex:1">
+                            <label>Nombres de estados (opcional)</label>
+                            <div id="tree-state-names" class="state-names-row"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Matriz P -->
+                <section class="matrices-area">
+                    <div class="matrices-row">
+                        <div class="matrix-card">
+                            <div class="matrix-header">
+                                <h3>Matriz de Transición P</h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Cargar ejemplo" onclick="TreeApp.loadExample()">📖</button>
+                                    <button class="btn-icon" title="Limpiar" onclick="MatrixUI.clear('tree')">✕</button>
+                                </div>
+                            </div>
+                            <p class="matrix-hint">Cada fila debe sumar 1.0</p>
+                            <div class="matrix-bracket">
+                                <div class="bracket-left"></div>
+                                <div class="matrix-grid" id="matrix-tree-grid"></div>
+                                <div class="bracket-right"></div>
+                            </div>
+                            <div id="tree-row-sums" class="row-sums"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="markov-actions">
+                        <button class="btn-calculate btn-markov" id="btn-tree-generate" onclick="TreeApp.generate()">
+                            <span class="btn-text">Generar Árbol</span>
+                            <span class="btn-icon-arrow">🌳</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Resultado: Árbol SVG -->
+                <section class="result-section hidden" id="tree-result-section">
+                    <div class="result-card tree-result-card">
+                        <div class="result-header">
+                            <h3 id="tree-result-title">Árbol de Probabilidades</h3>
+                            <div class="tree-controls">
+                                <button class="btn-icon" title="Zoom +" onclick="TreeApp.zoomIn()">🔍+</button>
+                                <button class="btn-icon" title="Zoom −" onclick="TreeApp.zoomOut()">🔍−</button>
+                                <button class="btn-icon" title="Ajustar" onclick="TreeApp.fitToView()">⊡</button>
+                            </div>
+                        </div>
+                        <div class="tree-info" id="tree-info"></div>
+                        <div class="tree-svg-wrapper" id="tree-svg-wrapper">
+                            <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+                        </div>
+                    </div>
+                    <!-- Tabla resumen de probabilidades por paso -->
+                    <div class="result-card" id="tree-summary-card" style="margin-top:1rem"></div>
+                </section>
+            </div>
+
         </main>
 
         <footer class="app-footer">
@@ -362,5 +463,6 @@
     <script src="js/app.js"></script>
     <script src="js/markov.js"></script>
     <script src="js/absorbing.js"></script>
+    <script src="js/tree.js"></script>
 </body>
 </html>

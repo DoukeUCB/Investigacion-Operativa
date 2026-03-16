@@ -1255,3 +1255,211 @@ body {
         flex-direction: column;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Árbol de Probabilidades – Estilos
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Contenedor del SVG ── */
+.tree-svg-wrapper {
+    overflow: auto;
+    max-height: 75vh;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-card);
+    padding: 1rem;
+    min-height: 200px;
+    position: relative;
+}
+
+.tree-svg-wrapper svg {
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.2s ease;
+}
+
+/* ── Result card ── */
+.tree-result-card .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tree-controls {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.tree-controls .btn-icon {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+}
+
+/* ── Info badges ── */
+.tree-info {
+    margin-bottom: 0.75rem;
+}
+
+.tree-info-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ── SVG node hover ── */
+.tree-node {
+    cursor: default;
+    transition: opacity 0.15s;
+}
+
+.tree-node:hover rect {
+    fill-opacity: 0.25;
+    stroke-width: 2.5;
+}
+
+/* ── Responsive tree ── */
+@media (max-width: 640px) {
+    .tree-svg-wrapper {
+        max-height: 60vh;
+        padding: 0.5rem;
+    }
+
+    .tree-controls .btn-icon {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Mobile-first overrides (global)
+   ══════════════════════════════════════════════════════════════ */
+
+/* Base móvil */
+.app-container {
+    max-width: 100%;
+    padding: 0 12px;
+}
+
+.header-content {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.nav-tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: thin;
+}
+
+.nav-tab {
+    white-space: nowrap;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.82rem;
+}
+
+.config-row,
+.matrices-row {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.config-group,
+.config-group select,
+.config-group input,
+#operation-select {
+    width: 100%;
+    min-width: 100%;
+}
+
+.matrix-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding: 14px;
+}
+
+.operator-symbol {
+    transform: rotate(90deg);
+    align-self: center;
+}
+
+.matrix-grid input {
+    width: 48px;
+    height: 34px;
+    font-size: 0.78rem;
+}
+
+.result-grid .cell {
+    width: 56px;
+    height: 34px;
+    font-size: 0.78rem;
+}
+
+/* Tablet/desktop */
+@media (min-width: 769px) {
+    .app-container {
+        max-width: 1100px;
+        padding: 0 20px;
+    }
+
+    .header-content {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .nav-tabs {
+        width: auto;
+        overflow-x: visible;
+    }
+
+    .nav-tab {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .config-row {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .matrices-row {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .config-group,
+    .config-group select,
+    .config-group input {
+        width: auto;
+        min-width: 120px;
+    }
+
+    #operation-select {
+        min-width: 250px;
+    }
+
+    .matrix-card {
+        flex: 1;
+        min-width: 280px;
+        max-width: 460px;
+        padding: 20px;
+    }
+
+    .operator-symbol {
+        transform: none;
+    }
+
+    .matrix-grid input {
+        width: 58px;
+        height: 40px;
+        font-size: 0.85rem;
+    }
+
+    .result-grid .cell {
+        width: 70px;
+        height: 38px;
+        font-size: 0.85rem;
+    }
+}
