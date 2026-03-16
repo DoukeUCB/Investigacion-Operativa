@@ -1463,3 +1463,127 @@ body {
         font-size: 0.85rem;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   Landing + Tema 2 (Colas)
+   ══════════════════════════════════════════════════════════════ */
+
+.landing-panel {
+    text-align: center;
+}
+
+.landing-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.35rem;
+}
+
+.landing-subtitle {
+    color: var(--text-secondary);
+}
+
+.topic-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.topic-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+}
+
+.topic-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    color: var(--accent-hover);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    margin-bottom: 0.45rem;
+}
+
+.topic-card h3 {
+    margin-bottom: 0.35rem;
+    color: var(--text-primary);
+}
+
+.topic-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.9rem;
+}
+
+.topic-btn {
+    width: 100%;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.queue-metrics-table th:first-child,
+.queue-metrics-table td:first-child {
+    width: 45%;
+}
+
+.queue-diagnosis {
+    margin-top: 1rem;
+    border: 1px solid var(--border);
+    border-left-width: 4px;
+    border-radius: var(--radius-sm);
+    padding: 0.8rem 0.9rem;
+    background: rgba(148, 163, 184, 0.06);
+}
+
+.queue-diagnosis.ok {
+    border-left-color: var(--success);
+}
+
+.queue-diagnosis.mid {
+    border-left-color: var(--warning);
+}
+
+.queue-diagnosis.warn {
+    border-left-color: #f97316;
+}
+
+.queue-diagnosis.danger {
+    border-left-color: var(--error);
+}
+
+.badge-mid {
+    background: rgba(245, 158, 11, 0.14);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.badge-danger {
+    background: rgba(239, 68, 68, 0.14);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.queue-formula-hint {
+    margin-top: 0.8rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.86rem;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.queue-reco {
+    border-color: rgba(99, 102, 241, 0.35);
+}
+
+@media (min-width: 769px) {
+    .topic-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .topic-card {
+        padding: 1.2rem;
+    }
+}

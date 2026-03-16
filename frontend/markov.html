@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Matrices & Markov – Investigación Operativa</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">⊞</span>
+                    <div>
+                        <h1>Calculadora de Matrices</h1>
+                        <p class="subtitle">Investigación Operativa – UCB</p>
+                    </div>
+                </div>
+                <nav class="nav-tabs">
+                    <button class="nav-tab active" data-tab="calculator">Calculadora</button>
+                    <button class="nav-tab" data-tab="markov">Cadenas de Markov</button>
+                    <button class="nav-tab" data-tab="absorbing">Estados Absorbentes</button>
+                    <button class="nav-tab" data-tab="tree">Árbol de Probabilidades</button>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+
+            <!-- ═══════════ TAB 1: CALCULADORA DE MATRICES ═══════════ -->
+            <div id="tab-calculator" class="tab-content active">
+
+                <section class="config-panel">
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="operation-select">Operación</label>
+                            <select id="operation-select">
+                                <optgroup label="Dos matrices">
+                                    <option value="add">Suma (A + B)</option>
+                                    <option value="subtract">Resta (A − B)</option>
+                                    <option value="multiply" selected>Multiplicación (A × B)</option>
+                                </optgroup>
+                                <optgroup label="Una matriz">
+                                    <option value="transpose">Transpuesta (Aᵀ)</option>
+                                    <option value="determinant">Determinante (det A)</option>
+                                    <option value="inverse">Inversa (A⁻¹)</option>
+                                    <option value="trace">Traza (tr A)</option>
+                                    <option value="rank">Rango</option>
+                                    <option value="rref">Forma Escalonada (RREF)</option>
+                                    <option value="cofactor">Matriz de Cofactores</option>
+                                    <option value="adjugate">Matriz Adjunta</option>
+                                    <option value="eigenvalues">Valores Propios (2×2)</option>
+                                </optgroup>
+                                <optgroup label="Especiales">
+                                    <option value="scalar_multiply">Escalar × Matriz (k·A)</option>
+                                    <option value="power">Potencia (Aⁿ)</option>
+                                    <option value="identity">Identidad (Iₙ)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="config-group" id="dims-a-group">
+                            <label>Dimensión A</label>
+                            <div class="dim-inputs">
+                                <select id="rows-a">
+                                    <option value="2" selected>2</option><option value="3">3</option>
+                                    <option value="4">4</option><option value="5">5</option>
+                                </select>
+                                <span class="dim-x">×</span>
+                                <select id="cols-a">
+                                    <option value="2" selected>2</option><option value="3">3</option>
+                                    <option value="4">4</option><option value="5">5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="config-group" id="dims-b-group">
+                            <label>Dimensión B</label>
+                            <div class="dim-inputs">
+                                <select id="rows-b">
+                                    <option value="2" selected>2</option><option value="3">3</option>
+                                    <option value="4">4</option><option value="5">5</option>
+                                </select>
+                                <span class="dim-x">×</span>
+                                <select id="cols-b">
+                                    <option value="2" selected>2</option><option value="3">3</option>
+                                    <option value="4">4</option><option value="5">5</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="config-group hidden" id="scalar-group">
+                            <label for="scalar-input">Escalar (k)</label>
+                            <input type="number" id="scalar-input" value="2" step="any">
+                        </div>
+                        <div class="config-group hidden" id="exponent-group">
+                            <label for="exponent-input">Exponente (n)</label>
+                            <input type="number" id="exponent-input" value="2" min="0" max="20" step="1">
+                        </div>
+                        <div class="config-group hidden" id="identity-group">
+                            <label for="identity-size">Tamaño (n)</label>
+                            <select id="identity-size">
+                                <option value="2">2</option><option value="3" selected>3</option>
+                                <option value="4">4</option><option value="5">5</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="matrices-area">
+                    <div class="matrices-row">
+                        <div class="matrix-card" id="matrix-a-card">
+                            <div class="matrix-header">
+                                <h3>Matriz A</h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Ceros" onclick="MatrixUI.fillZeros('a')">0</button>
+                                    <button class="btn-icon" title="Unos" onclick="MatrixUI.fillOnes('a')">1</button>
+                                    <button class="btn-icon" title="Aleatorio" onclick="MatrixUI.fillRandom('a')">🎲</button>
+                                    <button class="btn-icon" title="Limpiar" onclick="MatrixUI.clear('a')">✕</button>
+                                </div>
+                            </div>
+                            <div class="matrix-bracket">
+                                <div class="bracket-left"></div>
+                                <div class="matrix-grid" id="matrix-a-grid"></div>
+                                <div class="bracket-right"></div>
+                            </div>
+                        </div>
+                        <div class="operator-symbol" id="operator-symbol">×</div>
+                        <div class="matrix-card" id="matrix-b-card">
+                            <div class="matrix-header">
+                                <h3>Matriz B</h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Ceros" onclick="MatrixUI.fillZeros('b')">0</button>
+                                    <button class="btn-icon" title="Unos" onclick="MatrixUI.fillOnes('b')">1</button>
+                                    <button class="btn-icon" title="Aleatorio" onclick="MatrixUI.fillRandom('b')">🎲</button>
+                                    <button class="btn-icon" title="Limpiar" onclick="MatrixUI.clear('b')">✕</button>
+                                </div>
+                            </div>
+                            <div class="matrix-bracket">
+                                <div class="bracket-left"></div>
+                                <div class="matrix-grid" id="matrix-b-grid"></div>
+                                <div class="bracket-right"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="calculate-row">
+                        <button class="btn-calculate" id="btn-calculate" onclick="App.calculate()">
+                            <span class="btn-text">Calcular</span>
+                            <span class="btn-icon-arrow">→</span>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="result-section hidden" id="result-section">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 id="result-title">Resultado</h3>
+                            <button class="btn-icon" title="Copiar" onclick="App.copyResult()">📋</button>
+                        </div>
+                        <div id="result-content"></div>
+                    </div>
+                </section>
+
+                <section class="history-section">
+                    <div class="history-header">
+                        <h3>Historial</h3>
+                        <button class="btn-link" onclick="App.clearHistory()">Limpiar</button>
+                    </div>
+                    <div id="history-list" class="history-list">
+                        <p class="history-empty">Aún no hay operaciones realizadas.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ═══════════ TAB 2: CADENAS DE MARKOV ═══════════ -->
+            <div id="tab-markov" class="tab-content">
+
+                <!-- Configuración -->
+                <section class="config-panel">
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="markov-size">Número de estados</label>
+                            <select id="markov-size">
+                                <option value="2" selected>2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="markov-steps">Pasos (n) para Chapman-Kolmogorov</label>
+                            <input type="number" id="markov-steps" value="3" min="1" max="200" step="1">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Nombres de estados -->
+                <section class="config-panel" style="margin-top:-12px">
+                    <div class="config-row">
+                        <div class="config-group" style="flex:1">
+                            <label>Nombres de estados (opcional)</label>
+                            <div id="markov-state-names" class="state-names-row"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Matriz P y vector π(0) -->
+                <section class="matrices-area">
+                    <div class="matrices-row">
+                        <div class="matrix-card">
+                            <div class="matrix-header">
+                                <h3>Matriz de Transición P</h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Cargar ejemplo" onclick="MarkovApp.loadExample()">📖</button>
+                                    <button class="btn-icon" title="Limpiar" onclick="MatrixUI.clear('p')">✕</button>
+                                </div>
+                            </div>
+                            <p class="matrix-hint">Cada fila debe sumar 1.0</p>
+                            <div class="matrix-bracket">
+                                <div class="bracket-left"></div>
+                                <div class="matrix-grid" id="matrix-p-grid"></div>
+                                <div class="bracket-right"></div>
+                            </div>
+                            <div id="markov-row-sums" class="row-sums"></div>
+                        </div>
+
+                        <div class="matrix-card markov-pi-card">
+                            <div class="matrix-header">
+                                <h3>Vector inicial π(0)</h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Limpiar" onclick="MarkovApp.clearPi0()">✕</button>
+                                </div>
+                            </div>
+                            <p class="matrix-hint">Puede ser distribución (suma=1) o cantidades (ej: 200,100,50)</p>
+                            <div id="markov-pi0-grid" class="markov-pi0-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="markov-actions">
+                        <button class="btn-calculate btn-markov" id="btn-markov-full" onclick="MarkovApp.runFullAnalysis()">
+                            <span class="btn-text">Análisis Completo</span>
+                            <span class="btn-icon-arrow">→</span>
+                        </button>
+                        <div class="markov-individual-btns">
+                            <button class="btn-secondary" onclick="MarkovApp.run('chapman_kolmogorov')">
+                                Chapman-Kolmogorov π(n)
+                            </button>
+                            <button class="btn-secondary" onclick="MarkovApp.run('steady_state')">
+                                Estado Estacionario π
+                            </button>
+                            <button class="btn-secondary" onclick="MarkovApp.run('mean_first_passage')">
+                                Primer Pasaje M
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Resultados Markov -->
+                <section class="result-section hidden" id="markov-result-section">
+                    <div id="markov-results-container"></div>
+                </section>
+            </div>
+
+            <!-- ═══════════ TAB 3: CADENAS ABSORBENTES ═══════════ -->
+            <div id="tab-absorbing" class="tab-content">
+
+                <!-- Configuración -->
+                <section class="config-panel">
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="abs-size">Número de estados</label>
+                            <select id="abs-size">
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Nombres de estados -->
+                <section class="config-panel" style="margin-top:-12px">
+                    <div class="config-row">
+                        <div class="config-group" style="flex:1">
+                            <label>Nombres de estados (opcional)</label>
+                            <div id="abs-state-names" class="state-names-row"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Casillas para marcar estados absorbentes -->
+                <section class="config-panel" style="margin-top:-12px">
+                    <div class="config-row">
+                        <div class="config-group" style="flex:1">
+                            <label>Marcar estados absorbentes <span style="color:var(--text-muted);font-weight:400">(auto-detectados si P[i][i]=1)</span></label>
+                            <div id="abs-checkboxes" class="abs-checkboxes-row"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Matriz P -->
+                <section class="matrices-area">
+                    <div class="matrices-row">
+                        <div class="matrix-card">
+                            <div class="matrix-header">
+                                <h3>Matriz de Transición P</h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Cargar ejemplo" onclick="AbsorbingApp.loadExample()">📖</button>
+                                    <button class="btn-icon" title="Limpiar" onclick="MatrixUI.clear('abs')">✕</button>
+                                </div>
+                            </div>
+                            <p class="matrix-hint">Cada fila debe sumar 1. Los estados absorbentes tienen P[i][i]=1</p>
+                            <div class="matrix-bracket">
+                                <div class="bracket-left"></div>
+                                <div class="matrix-grid" id="matrix-abs-grid"></div>
+                                <div class="bracket-right"></div>
+                            </div>
+                            <div id="abs-row-sums" class="row-sums"></div>
+                        </div>
+                    </div>
+
+                    <!-- Vector b opcional -->
+                    <div class="matrices-row" style="margin-top:1rem">
+                        <div class="matrix-card markov-pi-card">
+                            <div class="matrix-header">
+                                <h3>Vector b (distribución sobre transitorios) <span style="color:var(--text-muted);font-weight:400">— opcional</span></h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Limpiar" onclick="AbsorbingApp.clearVectorB()">✕</button>
+                                </div>
+                            </div>
+                            <p class="matrix-hint">Cantidad inicial en cada estado transitorio. Dejar vacío si no aplica.</p>
+                            <div id="abs-vector-b" class="markov-pi0-grid"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="markov-actions">
+                        <button class="btn-calculate btn-markov" id="btn-abs-analyze" onclick="AbsorbingApp.runAnalysis()">
+                            <span class="btn-text">Analizar Cadena Absorbente</span>
+                            <span class="btn-icon-arrow">→</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Resultados Absorbente -->
+                <section class="result-section hidden" id="abs-result-section">
+                    <div id="abs-results-container"></div>
+                </section>
+            </div>
+
+            <!-- ═══════════ TAB 4: ÁRBOL DE PROBABILIDADES ═══════════ -->
+            <div id="tab-tree" class="tab-content">
+
+                <!-- Configuración -->
+                <section class="config-panel">
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="tree-size">Número de estados</label>
+                            <select id="tree-size">
+                                <option value="2" selected>2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="tree-initial">Estado inicial</label>
+                            <select id="tree-initial">
+                                <option value="0">Estado 1</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="tree-steps">Pasos (niveles)</label>
+                            <select id="tree-steps">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3" selected>3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+                        <div class="config-group">
+                            <label for="tree-prune">Umbral de poda</label>
+                            <input type="number" id="tree-prune" value="0.01" min="0" max="0.5" step="0.01"
+                                   title="Ramas con probabilidad acumulada menor a este valor se eliminan">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Nombres de estados -->
+                <section class="config-panel" style="margin-top:-12px">
+                    <div class="config-row">
+                        <div class="config-group" style="flex:1">
+                            <label>Nombres de estados (opcional)</label>
+                            <div id="tree-state-names" class="state-names-row"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Matriz P -->
+                <section class="matrices-area">
+                    <div class="matrices-row">
+                        <div class="matrix-card">
+                            <div class="matrix-header">
+                                <h3>Matriz de Transición P</h3>
+                                <div class="matrix-actions">
+                                    <button class="btn-icon" title="Cargar ejemplo" onclick="TreeApp.loadExample()">📖</button>
+                                    <button class="btn-icon" title="Limpiar" onclick="MatrixUI.clear('tree')">✕</button>
+                                </div>
+                            </div>
+                            <p class="matrix-hint">Cada fila debe sumar 1.0</p>
+                            <div class="matrix-bracket">
+                                <div class="bracket-left"></div>
+                                <div class="matrix-grid" id="matrix-tree-grid"></div>
+                                <div class="bracket-right"></div>
+                            </div>
+                            <div id="tree-row-sums" class="row-sums"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="markov-actions">
+                        <button class="btn-calculate btn-markov" id="btn-tree-generate" onclick="TreeApp.generate()">
+                            <span class="btn-text">Generar Árbol</span>
+                            <span class="btn-icon-arrow">🌳</span>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Resultado: Árbol SVG -->
+                <section class="result-section hidden" id="tree-result-section">
+                    <div class="result-card tree-result-card">
+                        <div class="result-header">
+                            <h3 id="tree-result-title">Árbol de Probabilidades</h3>
+                            <div class="tree-controls">
+                                <button class="btn-icon" title="Zoom +" onclick="TreeApp.zoomIn()">🔍+</button>
+                                <button class="btn-icon" title="Zoom −" onclick="TreeApp.zoomOut()">🔍−</button>
+                                <button class="btn-icon" title="Ajustar" onclick="TreeApp.fitToView()">⊡</button>
+                            </div>
+                        </div>
+                        <div class="tree-info" id="tree-info"></div>
+                        <div class="tree-svg-wrapper" id="tree-svg-wrapper">
+                            <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+                        </div>
+                    </div>
+                    <!-- Tabla resumen de probabilidades por paso -->
+                    <div class="result-card" id="tree-summary-card" style="margin-top:1rem"></div>
+                </section>
+            </div>
+
+        </main>
+
+        <footer class="app-footer">
+            <p>Investigación Operativa – Universidad Católica Boliviana · 2026</p>
+        </footer>
+    </div>
+
+    <script src="js/matrix.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/markov.js"></script>
+    <script src="js/absorbing.js"></script>
+    <script src="js/tree.js"></script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema 2 – Teoría de Colas</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">⊞</span>
+                    <div>
+                        <h1>Tema 2: Teoría de Colas</h1>
+                        <p class="subtitle">Investigación Operativa – UCB</p>
+                    </div>
+                </div>
+                <a class="btn-secondary" href="/">← Volver al inicio</a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="config-panel">
+                <div class="config-row">
+                    <div class="config-group">
+                        <label for="queue-model">Modelo</label>
+                        <select id="queue-model">
+                            <option value="mm1">M/M/1 (fuente infinita)</option>
+                            <option value="mmk">M/M/k (fuente infinita)</option>
+                            <option value="mg1">M/G/1</option>
+                            <option value="md1">M/D/1</option>
+                            <option value="mgk">M/G/k (aprox. Allen–Cunneen)</option>
+                            <option value="finite_mm1">Fuente finita M/M/1/N</option>
+                            <option value="finite_mmk">Fuente finita M/M/k/N</option>
+                            <option value="mmk_infinite_finite_peps">M/M/k/∞/N/PEPS</option>
+                        </select>
+                    </div>
+
+                    <div class="config-group">
+                        <label for="lambda-rate">λ (tasa llegada)</label>
+                        <input type="number" id="lambda-rate" value="8" min="0.0001" step="any">
+                    </div>
+
+                    <div class="config-group">
+                        <label for="mu-rate">μ (tasa servicio)</label>
+                        <input type="number" id="mu-rate" value="12" min="0.0001" step="any">
+                    </div>
+
+                    <div class="config-group queue-opt hidden" id="group-k">
+                        <label for="queue-k">k (servidores)</label>
+                        <input type="number" id="queue-k" value="2" min="1" step="1">
+                    </div>
+
+                    <div class="config-group queue-opt hidden" id="group-N">
+                        <label for="queue-N">N (población finita)</label>
+                        <input type="number" id="queue-N" value="20" min="1" step="1">
+                    </div>
+
+                    <div class="config-group queue-opt hidden" id="group-es2">
+                        <label for="queue-es2">E[S²]</label>
+                        <input type="number" id="queue-es2" value="0.02" min="0.000001" step="any">
+                    </div>
+
+                    <div class="config-group queue-opt hidden" id="group-cs2">
+                        <label for="queue-cs2">C_s²</label>
+                        <input type="number" id="queue-cs2" value="1" min="0" step="any">
+                    </div>
+
+                    <div class="config-group queue-opt" id="group-n">
+                        <label for="queue-n">n (opcional)</label>
+                        <input type="number" id="queue-n" value="" min="0" step="1" placeholder="Ej: 4">
+                    </div>
+
+                    <div class="config-group queue-opt" id="group-max-n">
+                        <label for="queue-max-n">max_n (tabla Pn)</label>
+                        <input type="number" id="queue-max-n" value="12" min="0" step="1">
+                    </div>
+                </div>
+            </section>
+
+            <section class="config-panel" style="margin-top:-12px;">
+                <div class="config-row">
+                    <div class="config-group" style="flex:1;">
+                        <label>Descripción del modelo</label>
+                        <p id="queue-model-note" class="matrix-hint" style="margin:0;"></p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="matrices-area">
+                <div class="calculate-row">
+                    <button class="btn-calculate" id="btn-queue-calc" onclick="QueueApp.calculate()">
+                        <span class="btn-text">Calcular Métricas</span>
+                        <span class="btn-icon-arrow">→</span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="result-section hidden" id="queue-result-section">
+                <div class="result-card">
+                    <div class="result-header">
+                        <h3 id="queue-result-title">Resultado</h3>
+                    </div>
+                    <div id="queue-result-content"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>Tema 2 – Teoría de Colas · Investigación Operativa</p>
+        </footer>
+    </div>
+
+    <script src="js/queues.js"></script>
+</body>
+</html>

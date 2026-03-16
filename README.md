@@ -1,6 +1,11 @@
-# Calculadora de Matrices & Cadenas de Markov – Investigación Operativa
+# Plataforma de Investigación Operativa – UCB
 
-Aplicación web para resolver operaciones matriciales, cadenas de Markov ergódicas, cadenas absorbentes y visualizar árboles de probabilidades.  
+Aplicación web por temas para resolver operaciones de Investigación Operativa.
+
+- **Tema 1:** Cadenas de Markov
+- **Tema 2:** Teoría de Colas
+
+Incluye además calculadora matricial como base transversal del curso.  
 **Universidad Católica Boliviana** – Investigación Operativa
 
 ---
@@ -12,16 +17,20 @@ El proyecto usa una **arquitectura de 3 capas**:
 ```
 ┌─────────────────────────────────────────────────┐
 │  Capa de Presentación                           │
-│  ├── Frontend (HTML/CSS/JS) — 4 pestañas        │
+│  ├── Frontend (landing + páginas por tema)      │
 │  └── API REST (Flask – app.py)                  │
 ├─────────────────────────────────────────────────┤
 │  Capa de Lógica de Negocio                      │
 │  ├── services/matrix_service.py                 │
-│  └── services/markov_service.py                 │
+│  ├── services/markov_service.py                 │
+│  ├── services/markov_transient_service.py       │
+│  ├── services/markov_absorbing_service.py       │
+│  └── services/queue_service.py                  │
 ├─────────────────────────────────────────────────┤
 │  Capa de Datos / Utilidades                     │
 │  ├── utils/matrix_operations.py                 │
-│  └── utils/markov_operations.py                 │
+│  ├── utils/markov_operations.py                 │
+│  └── utils/queue_operations.py                  │
 └─────────────────────────────────────────────────┘
 ```
 
@@ -82,6 +91,21 @@ Genera un **árbol visual SVG** que muestra todas las transiciones posibles desd
 - Tabla resumen de distribución por paso
 - Controles de zoom (acercar / alejar / ajustar)
 
+### 5. Teoría de Colas (Tema 2)
+
+Modelos implementados en backend y UI:
+
+1. `mm1` — M/M/1 (fuente infinita)
+2. `mmk` — M/M/k (fuente infinita)
+3. `mg1` — M/G/1
+4. `md1` — M/D/1
+5. `mgk` — M/G/k (aprox. Allen–Cunneen)
+6. `finite_mm1` — Fuente finita M/M/1/N
+7. `finite_mmk` — Fuente finita M/M/k/N
+8. `mmk_infinite_finite_peps` — M/M/k/∞/N/PEPS
+
+Métricas reportadas según modelo: `ρ`, `P0`, `Pn`, `Pw`, `Lq`, `L`, `Wq`, `W`, `λ_eff`, `P_system_full`.
+
 ## Requisitos
 
 - Python 3.10+
@@ -123,15 +147,18 @@ Abrir **http://localhost:5000** en el navegador.
 │       ├── matrix_operations.py    # Operaciones puras de matrices
 │       └── markov_operations.py    # Operaciones puras de Markov
 └── frontend/
-    ├── index.html                  # 4 pestañas
+    ├── index.html                  # Landing de selección de temas
+    ├── markov.html                 # Tema 1 (Markov)
+    ├── queues.html                 # Tema 2 (Teoría de colas)
     ├── css/
     │   └── styles.css
     └── js/
-        ├── app.js                  # Controlador principal + tabs
+        ├── app.js                  # Controlador principal Tema 1
         ├── matrix.js               # UI de grids matriciales
         ├── markov.js               # UI cadenas ergódicas
         ├── absorbing.js            # UI cadenas absorbentes
-        └── tree.js                 # UI árbol de probabilidades
+        ├── tree.js                 # UI árbol de probabilidades
+        └── queues.js               # UI tema 2
 ```
 
 ## API
@@ -168,6 +195,22 @@ Operaciones: `chapman_kolmogorov`, `steady_state`, `mean_first_passage`, `full_a
 
 **GET** `/api/markov/operations` — Lista todas las operaciones de Markov.
 
+### Teoría de Colas
+
+**POST** `/api/queues/operate`
+
+```json
+{
+    "model": "mmk",
+    "lambda_rate": 8,
+    "mu": 5,
+    "k": 2,
+    "max_n": 10
+}
+```
+
+**GET** `/api/queues/models` — Lista modelos de colas disponibles y parámetros requeridos.
+
 ## Refactor interno (backend)
 
 Se separó la lógica de Markov en servicios especializados:
@@ -177,6 +220,8 @@ Se separó la lógica de Markov en servicios especializados:
 - `services/markov_service.py`: fachada de despacho
 
 Esto simplifica mantenimiento y extensibilidad.
+
+También se agregó `services/queue_service.py` para el Tema 2 y `utils/queue_operations.py` para fórmulas puras de colas.
 
 ## Responsive (mobile-first)
 

@@ -9,6 +9,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from services.matrix_service import MatrixService
 from services.markov_service import MarkovService
+from services.queue_service import QueueService
 import os
 
 # ── Configuración ──
@@ -20,6 +21,7 @@ CORS(app)
 
 matrix_service = MatrixService()
 markov_service = MarkovService()
+queue_service = QueueService()
 
 
 # ─────────────────── Endpoints de API ───────────────────
@@ -201,6 +203,81 @@ def list_markov_operations():
         },
     }
     return jsonify({"success": True, "operations": operations})
+
+
+# ─────────────────── Endpoints de Teoría de Colas ───────────────────
+
+@app.route("/api/queues/operate", methods=["POST"])
+def queues_operate():
+    """
+    Endpoint principal para teoría de colas.
+
+    Body JSON esperado:
+    {
+        "model": "mm1" | "mmk" | "mg1" | "md1" | "mgk" |
+                 "finite_mm1" | "finite_mmk" | "mmk_infinite_finite_peps",
+        "lambda_rate": 10,
+        "mu": 12,
+        "k": 2,
+        "N": 20,
+        "e_s2": 0.02,
+        "c_s2": 1.2,
+        "n": 4,
+        "max_n": 15
+    }
+    """
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "error": "Se requiere un cuerpo JSON válido."}), 400
+
+    model = data.get("model")
+    if not model:
+        return jsonify({"success": False, "error": "Falta el campo 'model'."}), 400
+
+    result = queue_service.execute(model, data)
+    status_code = 200 if result["success"] else 422
+    return jsonify(result), status_code
+
+
+@app.route("/api/queues/models", methods=["GET"])
+def list_queue_models():
+    models = {
+        "mm1": {
+            "description": "M/M/1 (fuente infinita)",
+            "requires": ["lambda_rate", "mu"],
+            "optional": ["n", "max_n"],
+        },
+        "mmk": {
+            "description": "M/M/k (k servidores, fuente infinita)",
+            "requires": ["lambda_rate", "mu", "k"],
+            "optional": ["n", "max_n"],
+        },
+        "mg1": {
+            "description": "M/G/1",
+            "requires": ["lambda_rate", "mu", "e_s2"],
+        },
+        "md1": {
+            "description": "M/D/1",
+            "requires": ["lambda_rate", "mu"],
+        },
+        "mgk": {
+            "description": "M/G/k (aprox. Allen–Cunneen)",
+            "requires": ["lambda_rate", "mu", "k", "c_s2"],
+        },
+        "finite_mm1": {
+            "description": "Fuente finita M/M/1/N",
+            "requires": ["lambda_rate", "mu", "N"],
+        },
+        "finite_mmk": {
+            "description": "Fuente finita M/M/k/N",
+            "requires": ["lambda_rate", "mu", "k", "N"],
+        },
+        "mmk_infinite_finite_peps": {
+            "description": "M/M/k/∞/N/PEPS (misma base estructural que finite_mmk)",
+            "requires": ["lambda_rate", "mu", "k", "N"],
+        },
+    }
+    return jsonify({"success": True, "models": models})
 
 
 # ─────────────────── Servir Frontend ───────────────────
