@@ -337,9 +337,7 @@ const TreeApp = (() => {
                 'font-family': "'JetBrains Mono', monospace",
                 fill: 'var(--text-muted)',
             });
-            probText.textContent = node.prob >= 0.001
-                ? `P=${node.prob.toFixed(4)}`
-                : `P=${node.prob.toExponential(2)}`;
+                probText.textContent = `P=${formatTreeProbability(node.prob)}`;
             nodeG.appendChild(probText);
 
             g.appendChild(nodeG);
@@ -443,6 +441,13 @@ const TreeApp = (() => {
             el.setAttribute(k, v);
         }
         return el;
+    }
+
+    function formatTreeProbability(value) {
+        if (!Number.isFinite(value)) return String(value);
+        if (value === 0) return '0';
+        if (Math.abs(value) < 1e-6) return value.toExponential(2);
+        return Number(value.toFixed(6)).toString();
     }
 
     function getStateColor(stateIdx) {

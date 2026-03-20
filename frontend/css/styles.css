@@ -1578,7 +1578,246 @@ body {
     border-color: rgba(99, 102, 241, 0.35);
 }
 
+.queue-tabs-panel {
+    padding-bottom: 0.9rem;
+}
+
+.queue-topic-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.queue-topic-tab {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    padding: 0.7rem 0.85rem;
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.queue-topic-tab:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.queue-topic-tab.active {
+    background: rgba(99, 102, 241, 0.14);
+    color: var(--accent-hover);
+    border-color: var(--accent);
+}
+
+.queue-tab-content {
+    display: none;
+}
+
+.queue-tab-content.active {
+    display: block;
+}
+
+.queue-note-panel {
+    margin-top: -0.35rem;
+}
+
+.queue-note-group {
+    width: 100%;
+}
+
+.queue-note-text {
+    margin-top: 0.25rem;
+}
+
+.queue-cost-panel h3 {
+    margin-bottom: 0.35rem;
+}
+
+.queue-cost-intro {
+    margin-bottom: 0.8rem;
+}
+
+#group-economic-inputs {
+    margin-top: 0.75rem;
+}
+
+.queue-opt-toggle {
+    margin-top: 0.75rem;
+}
+
+.queue-inline-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.queue-cost-formula {
+    margin-top: 0.55rem;
+    margin-bottom: 0;
+}
+
+.queue-theory-panel h3 {
+    font-size: 1.02rem;
+    margin-bottom: 0.85rem;
+}
+
+.queue-def-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.queue-def-card {
+    background: rgba(148, 163, 184, 0.06);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+}
+
+.queue-def-card h4 {
+    color: var(--accent-hover);
+    margin-bottom: 0.35rem;
+    font-size: 0.92rem;
+}
+
+.queue-def-card p {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    margin-bottom: 0.25rem;
+}
+
+.queue-def-card p:last-child {
+    margin-bottom: 0;
+}
+
+.queue-example {
+    color: var(--text-muted);
+}
+
+.queue-law-box {
+    margin-bottom: 1rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.queue-law-box h4 {
+    margin-bottom: 0.35rem;
+    color: var(--text-primary);
+}
+
+.queue-law-box p {
+    color: var(--text-secondary);
+    font-size: 0.87rem;
+    margin-bottom: 0.2rem;
+}
+
+.queue-law-box p:last-child {
+    margin-bottom: 0;
+}
+
+.queue-model-table-title {
+    margin-top: 0.35rem;
+}
+
+.queue-model-table td,
+.queue-model-table th {
+    font-size: 0.85rem;
+}
+
+.queue-list-block {
+    margin-top: 0.9rem;
+}
+
+.queue-list-block h4 {
+    margin-bottom: 0.45rem;
+}
+
+.queue-prob-section {
+    margin-top: 0.95rem;
+}
+
+.queue-badge-wrap {
+    margin-bottom: 0.35rem;
+}
+
+.queue-diagnosis-title {
+    margin-bottom: 0.25rem;
+}
+
+.queue-diagnosis-text {
+    margin-bottom: 0;
+}
+
+.queue-economic-block {
+    margin-bottom: 0.95rem;
+}
+
+.queue-economic-decision {
+    margin: 0.45rem 0 0.65rem;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.queue-economic-block h4,
+.queue-optimization-block h4 {
+    margin-bottom: 0.35rem;
+}
+
+.queue-optimization-block {
+    margin-top: 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.queue-opt-summary {
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}
+
+.queue-gain-positive {
+    color: var(--success);
+    font-weight: 600;
+    margin-bottom: 0.55rem;
+}
+
+.queue-gain-neutral {
+    color: var(--text-secondary);
+    margin-bottom: 0.55rem;
+}
+
+.queue-best-row {
+    outline: 1px solid rgba(34, 197, 94, 0.45);
+    background: rgba(34, 197, 94, 0.08);
+}
+
 @media (min-width: 769px) {
+    .queue-topic-tabs {
+        flex-direction: row;
+    }
+
+    .queue-topic-tab {
+        width: auto;
+    }
+
+    .queue-def-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
     .topic-grid {
         grid-template-columns: 1fr 1fr;
     }

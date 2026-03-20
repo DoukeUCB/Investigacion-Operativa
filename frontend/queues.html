@@ -24,34 +24,53 @@
         </header>
 
         <main class="main-content">
+            <section class="config-panel queue-tabs-panel">
+                <div class="queue-topic-tabs" role="tablist" aria-label="Tipo de fuente">
+                    <button id="tab-infinite-btn" class="queue-topic-tab active" data-tab="infinite" role="tab" aria-selected="true">Modelos con fuente infinita</button>
+                    <button id="tab-finite-btn" class="queue-topic-tab" data-tab="finite" role="tab" aria-selected="false">Modelos con fuente finita</button>
+                </div>
+            </section>
+
             <section class="config-panel">
-                <div class="config-row">
+                <div id="tab-infinite" class="queue-tab-content active" role="tabpanel">
                     <div class="config-group">
-                        <label for="queue-model">Modelo</label>
-                        <select id="queue-model">
+                        <label for="queue-model-infinite">Modelo (fuente infinita)</label>
+                        <select id="queue-model-infinite">
                             <option value="mm1">M/M/1 (fuente infinita)</option>
-                            <option value="mmk">M/M/k (fuente infinita)</option>
+                            <option value="mmk">M/M/k (k servidores, fuente infinita)</option>
                             <option value="mg1">M/G/1</option>
                             <option value="md1">M/D/1</option>
                             <option value="mgk">M/G/k (aprox. Allen–Cunneen)</option>
-                            <option value="finite_mm1">Fuente finita M/M/1/N</option>
-                            <option value="finite_mmk">Fuente finita M/M/k/N</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="tab-finite" class="queue-tab-content" role="tabpanel">
+                    <div class="config-group">
+                        <label for="queue-model-finite">Modelo (fuente finita)</label>
+                        <select id="queue-model-finite">
+                            <option value="finite_mm1">M/M/1 fuente finita</option>
+                            <option value="finite_mmk">M/M/k fuente finita</option>
                             <option value="mmk_infinite_finite_peps">M/M/k/∞/N/PEPS</option>
                         </select>
                     </div>
+                </div>
+            </section>
 
+            <section class="config-panel queue-params-panel">
+                <div class="config-row">
                     <div class="config-group">
-                        <label for="lambda-rate">λ (tasa llegada)</label>
-                        <input type="number" id="lambda-rate" value="8" min="0.0001" step="any">
+                        <label for="lambda-rate">λ (tasa de llegada)</label>
+                        <input type="text" id="lambda-rate" value="8" placeholder="Ej: 8 o 2/3" inputmode="decimal">
                     </div>
 
                     <div class="config-group">
-                        <label for="mu-rate">μ (tasa servicio)</label>
-                        <input type="number" id="mu-rate" value="12" min="0.0001" step="any">
+                        <label for="mu-rate">μ (tasa de servicio)</label>
+                        <input type="text" id="mu-rate" value="12" placeholder="Ej: 12 o 5/4" inputmode="decimal">
                     </div>
 
                     <div class="config-group queue-opt hidden" id="group-k">
-                        <label for="queue-k">k (servidores)</label>
+                        <label for="queue-k">k (número de servidores)</label>
                         <input type="number" id="queue-k" value="2" min="1" step="1">
                     </div>
 
@@ -62,17 +81,17 @@
 
                     <div class="config-group queue-opt hidden" id="group-es2">
                         <label for="queue-es2">E[S²]</label>
-                        <input type="number" id="queue-es2" value="0.02" min="0.000001" step="any">
+                        <input type="text" id="queue-es2" value="0.02" placeholder="Ej: 0.02 o 1/50" inputmode="decimal">
                     </div>
 
                     <div class="config-group queue-opt hidden" id="group-cs2">
                         <label for="queue-cs2">C_s²</label>
-                        <input type="number" id="queue-cs2" value="1" min="0" step="any">
+                        <input type="text" id="queue-cs2" value="1" placeholder="Ej: 1 o 3/2" inputmode="decimal">
                     </div>
 
                     <div class="config-group queue-opt" id="group-n">
-                        <label for="queue-n">n (opcional)</label>
-                        <input type="number" id="queue-n" value="" min="0" step="1" placeholder="Ej: 4">
+                        <label for="queue-n">n (opcional para Pn)</label>
+                        <input type="number" id="queue-n" min="0" step="1" placeholder="Ej: 4">
                     </div>
 
                     <div class="config-group queue-opt" id="group-max-n">
@@ -80,21 +99,169 @@
                         <input type="number" id="queue-max-n" value="12" min="0" step="1">
                     </div>
                 </div>
+
+                <div class="queue-opt-toggle">
+                    <label class="queue-inline-check" for="optimize-k-wait">
+                        <input type="checkbox" id="optimize-k-wait">
+                        Optimizar por número de servidores K (objetivo de tiempo máximo en W/Wq)
+                    </label>
+                </div>
+
+                <div id="group-k-range-wait" class="config-row queue-opt hidden">
+                    <div class="config-group">
+                        <label for="wait-target-metric">Métrica objetivo</label>
+                        <select id="wait-target-metric">
+                            <option value="Wq">Wq (espera en cola)</option>
+                            <option value="W">W (tiempo total en sistema)</option>
+                        </select>
+                    </div>
+                    <div class="config-group">
+                        <label for="wait-target-max">Tiempo máximo permitido</label>
+                        <input type="text" id="wait-target-max" value="0.5" placeholder="Ej: 0.5 o 1/2" inputmode="decimal">
+                    </div>
+                    <div class="config-group">
+                        <label for="k-min">K mínimo</label>
+                        <input type="number" id="k-min" value="1" min="1" step="1">
+                    </div>
+                    <div class="config-group">
+                        <label for="k-max">K máximo</label>
+                        <input type="number" id="k-max" value="6" min="1" step="1">
+                    </div>
+                </div>
             </section>
 
-            <section class="config-panel" style="margin-top:-12px;">
-                <div class="config-row">
-                    <div class="config-group" style="flex:1;">
-                        <label>Descripción del modelo</label>
-                        <p id="queue-model-note" class="matrix-hint" style="margin:0;"></p>
+            <section class="config-panel queue-note-panel">
+                <div class="config-group queue-note-group">
+                    <label>Descripción del modelo seleccionado</label>
+                    <p id="queue-model-note" class="matrix-hint queue-note-text"></p>
+                </div>
+            </section>
+
+            <section class="config-panel queue-cost-panel">
+                <h3>Análisis económico de la cola</h3>
+                <p class="matrix-hint queue-cost-intro">
+                    Balancea el costo de esperar vs. el costo de servicio para estimar el costo total por período.
+                </p>
+
+                <div class="queue-opt-toggle">
+                    <label class="queue-inline-check" for="economic-enabled">
+                        <input type="checkbox" id="economic-enabled">
+                        Activar análisis económico (Cw, Cs y CT)
+                    </label>
+                </div>
+
+                <div id="group-economic-inputs" class="hidden">
+
+                    <div class="config-row">
+                        <div class="config-group">
+                            <label for="cost-cw">Cw (costo de espera)</label>
+                            <input type="text" id="cost-cw" value="10" placeholder="Ej: 10 o 25/2" inputmode="decimal">
+                        </div>
+
+                        <div class="config-group">
+                            <label for="cost-cs">Cs (costo por servidor)</label>
+                            <input type="text" id="cost-cs" value="25" placeholder="Ej: 25 o 100/3" inputmode="decimal">
+                        </div>
+
+                        <div class="config-group">
+                            <label for="cost-basis">Base del costo de espera</label>
+                            <select id="cost-basis">
+                                <option value="Lq">Usar Lq (solo espera en cola)</option>
+                                <option value="L">Usar L (permanencia total en sistema)</option>
+                            </select>
+                        </div>
                     </div>
+
+                    <div class="queue-opt-toggle">
+                        <label class="queue-inline-check" for="manual-economic">
+                            <input type="checkbox" id="manual-economic">
+                            Ingresar K actual y L/Lq manualmente
+                        </label>
+                    </div>
+
+                    <div id="group-manual-economic" class="config-row queue-opt hidden">
+                        <div class="config-group">
+                            <label for="manual-k">K actual (manual)</label>
+                            <input type="number" id="manual-k" value="1" min="1" step="1">
+                        </div>
+                        <div class="config-group">
+                            <label for="manual-wait-value">L o Lq usado (manual)</label>
+                            <input type="text" id="manual-wait-value" value="2" placeholder="Ej: 2 o 3/2" inputmode="decimal">
+                        </div>
+                    </div>
+
+                    <p class="matrix-hint queue-cost-formula">
+                        Fórmula: CT = Cw · (L o Lq) + K · Cs
+                    </p>
+                </div>
+            </section>
+
+            <section class="config-panel queue-theory-panel">
+                <h3>Significado de las métricas principales</h3>
+                <div class="queue-def-grid">
+                    <article class="queue-def-card">
+                        <h4>P0</h4>
+                        <p>Probabilidad de que el sistema esté vacío. No hay clientes ni en cola ni en servicio.</p>
+                        <p class="queue-example">Ejemplo: en un banco, P0 es la probabilidad de que no haya nadie esperando ni siendo atendido.</p>
+                    </article>
+                    <article class="queue-def-card">
+                        <h4>Pn</h4>
+                        <p>Probabilidad de que haya exactamente <strong>n</strong> clientes en el sistema (cola + servicio).</p>
+                        <p class="queue-example">P1: un cliente total, P2: dos clientes, etc.</p>
+                    </article>
+                    <article class="queue-def-card">
+                        <h4>Pw</h4>
+                        <p>Probabilidad de que un cliente que llega tenga que esperar.</p>
+                        <p class="queue-example">Equivale a encontrar todos los servidores ocupados.</p>
+                    </article>
+                    <article class="queue-def-card">
+                        <h4>Lq</h4>
+                        <p>Número promedio de clientes en cola (esperando, sin contar los que ya están siendo atendidos).</p>
+                    </article>
+                    <article class="queue-def-card">
+                        <h4>L</h4>
+                        <p>Número promedio de clientes en el sistema (cola + servicio).</p>
+                        <p class="queue-example">Relación general: L = Lq + promedio en servicio.</p>
+                    </article>
+                    <article class="queue-def-card">
+                        <h4>Wq y W</h4>
+                        <p><strong>Wq</strong>: tiempo promedio de espera antes del servicio. <strong>W</strong>: tiempo promedio total dentro del sistema.</p>
+                    </article>
+                </div>
+
+                <div class="queue-law-box">
+                    <h4>Leyes de Little</h4>
+                    <p>L = λ<sub>ef</sub> W &nbsp;&nbsp; y &nbsp;&nbsp; Lq = λ<sub>ef</sub> Wq</p>
+                    <p>Donde λ<sub>ef</sub> es la tasa efectiva de llegada que realmente entra al sistema.</p>
+                </div>
+
+                <h3 class="queue-model-table-title">Resumen de modelos</h3>
+                <div class="labeled-matrix-wrapper">
+                    <table class="labeled-matrix queue-model-table">
+                        <tr>
+                            <th>Modelo</th>
+                            <th>Llegadas</th>
+                            <th>Servicio</th>
+                            <th>Servidores</th>
+                            <th>Población</th>
+                            <th>Uso típico</th>
+                        </tr>
+                        <tr><td>M/M/1</td><td>Poisson</td><td>Exponencial</td><td>1</td><td>Infinita</td><td>Sistema sencillo con un servidor.</td></tr>
+                        <tr><td>M/M/k</td><td>Poisson</td><td>Exponencial</td><td>k</td><td>Infinita</td><td>Varios servidores paralelos (cajas, ventanillas).</td></tr>
+                        <tr><td>M/G/1</td><td>Poisson</td><td>General</td><td>1</td><td>Infinita</td><td>Un servidor con servicio no exponencial.</td></tr>
+                        <tr><td>M/D/1</td><td>Poisson</td><td>Determinista</td><td>1</td><td>Infinita</td><td>Servicio casi constante.</td></tr>
+                        <tr><td>M/G/k</td><td>Poisson</td><td>General</td><td>k</td><td>Infinita</td><td>Varios servidores, servicio general (aprox.).</td></tr>
+                        <tr><td>M/M/1 fuente finita</td><td>Poisson dep.</td><td>Exponencial</td><td>1</td><td>Finita N</td><td>Población potencial limitada.</td></tr>
+                        <tr><td>M/M/k fuente finita</td><td>Poisson dep.</td><td>Exponencial</td><td>k</td><td>Finita N</td><td>k servidores con población limitada.</td></tr>
+                        <tr><td>M/M/k/∞/N/PEPS</td><td>Poisson dep.</td><td>Exponencial</td><td>k</td><td>Finita N</td><td>Caso finito con disciplina FIFO/PEPS.</td></tr>
+                    </table>
                 </div>
             </section>
 
             <section class="matrices-area">
                 <div class="calculate-row">
-                    <button class="btn-calculate" id="btn-queue-calc" onclick="QueueApp.calculate()">
-                        <span class="btn-text">Calcular Métricas</span>
+                    <button class="btn-calculate" id="btn-queue-calc">
+                        <span class="btn-text">Calcular métricas</span>
                         <span class="btn-icon-arrow">→</span>
                     </button>
                 </div>

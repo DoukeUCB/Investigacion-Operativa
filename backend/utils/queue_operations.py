@@ -11,6 +11,30 @@ from typing import Dict, List
 EPS = 1e-12
 
 
+def _parse_real(value, name: str) -> float:
+    if isinstance(value, (int, float)):
+        parsed = float(value)
+    else:
+        raw = str(value).strip()
+        if raw == "":
+            raise ValueError(f"{name} no puede estar vacío.")
+        if "/" in raw:
+            parts = [p.strip() for p in raw.split("/")]
+            if len(parts) != 2 or parts[0] == "" or parts[1] == "":
+                raise ValueError(f"{name} tiene formato de fracción inválido. Use a/b.")
+            numerator = float(parts[0])
+            denominator = float(parts[1])
+            if abs(denominator) <= EPS:
+                raise ValueError(f"{name} tiene denominador 0.")
+            parsed = numerator / denominator
+        else:
+            parsed = float(raw)
+
+    if parsed != parsed or parsed in (float("inf"), float("-inf")):
+        raise ValueError(f"{name} debe ser un número real finito.")
+    return parsed
+
+
 def _require_positive(value: float, name: str) -> None:
     if value <= 0:
         raise ValueError(f"{name} debe ser > 0.")
@@ -307,16 +331,16 @@ def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
 
     if model == "mm1":
         return _calc_mm1(
-            float(payload.get("lambda_rate", 0)),
-            float(payload.get("mu", 0)),
+            _parse_real(payload.get("lambda_rate", 0), "λ"),
+            _parse_real(payload.get("mu", 0), "μ"),
             n_optional,
             int(payload.get("max_n", 10)),
         )
 
     if model == "mmk":
         return _calc_mmk(
-            float(payload.get("lambda_rate", 0)),
-            float(payload.get("mu", 0)),
+            _parse_real(payload.get("lambda_rate", 0), "λ"),
+            _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("k", 1)),
             n_optional,
             int(payload.get("max_n", 15)),
@@ -324,44 +348,44 @@ def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
 
     if model == "mg1":
         return _calc_mg1(
-            float(payload.get("lambda_rate", 0)),
-            float(payload.get("mu", 0)),
-            float(payload.get("e_s2", 0)),
+            _parse_real(payload.get("lambda_rate", 0), "λ"),
+            _parse_real(payload.get("mu", 0), "μ"),
+            _parse_real(payload.get("e_s2", 0), "E[S²]"),
         )
 
     if model == "md1":
         return _calc_md1(
-            float(payload.get("lambda_rate", 0)),
-            float(payload.get("mu", 0)),
+            _parse_real(payload.get("lambda_rate", 0), "λ"),
+            _parse_real(payload.get("mu", 0), "μ"),
         )
 
     if model == "mgk":
         return _calc_mgk(
-            float(payload.get("lambda_rate", 0)),
-            float(payload.get("mu", 0)),
+            _parse_real(payload.get("lambda_rate", 0), "λ"),
+            _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("k", 1)),
-            float(payload.get("c_s2", 1.0)),
+            _parse_real(payload.get("c_s2", 1.0), "C_s²"),
         )
 
     if model == "finite_mm1":
         return _calc_finite_mm1(
-            float(payload.get("lambda_rate", 0)),
-            float(payload.get("mu", 0)),
+            _parse_real(payload.get("lambda_rate", 0), "λ"),
+            _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("N", 1)),
         )
 
     if model == "finite_mmk":
         return _calc_finite_mmk(
-            float(payload.get("lambda_rate", 0)),
-            float(payload.get("mu", 0)),
+            _parse_real(payload.get("lambda_rate", 0), "λ"),
+            _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("k", 1)),
             int(payload.get("N", 1)),
         )
 
     if model == "mmk_infinite_finite_peps":
         result = _calc_finite_mmk(
-            float(payload.get("lambda_rate", 0)),
-            float(payload.get("mu", 0)),
+            _parse_real(payload.get("lambda_rate", 0), "λ"),
+            _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("k", 1)),
             int(payload.get("N", 1)),
         )
@@ -372,3 +396,229 @@ def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
         "Modelo de colas desconocido. Use: "
         "mm1, mmk, mg1, md1, mgk, finite_mm1, finite_mmk, mmk_infinite_finite_peps"
     )
+
+
+def _extract_server_count(result: Dict, payload: Dict) -> int:
+    if "k" in result:
+        return int(result["k"])
+
+    model = (payload.get("model") or "").strip().lower()
+    if model in {"mm1", "mg1", "md1", "finite_mm1"}:
+        return 1
+
+    return int(payload.get("k", 1))
+
+
+def calculate_economic_analysis(model: str, payload: Dict, result: Dict | None = None) -> Dict:
+    cw = _parse_real(payload.get("cw", 0), "Cw")
+    cs = _parse_real(payload.get("cs", 0), "Cs")
+    basis = str(payload.get("wait_cost_basis", "Lq")).upper()
+    optimize_k = bool(payload.get("optimize_k_economic", False))
+    manual_economic = bool(payload.get("manual_economic", False))
+
+    if cw < 0:
+        raise ValueError("Cw debe ser >= 0.")
+    if cs < 0:
+        raise ValueError("Cs debe ser >= 0.")
+    if basis not in {"L", "LQ"}:
+        raise ValueError("wait_cost_basis debe ser 'L' o 'Lq'.")
+
+    queue_metric_name = "L" if basis == "L" else "Lq"
+
+    metrics = result if result is not None else calculate_queue_metrics(model, payload)
+
+    if manual_economic:
+        wait_metric_value = _parse_real(payload.get("manual_wait_metric_value", 0), f"{queue_metric_name} manual")
+        if wait_metric_value < 0:
+            raise ValueError(f"{queue_metric_name} manual debe ser >= 0.")
+        k_current = int(payload.get("manual_k", 1))
+        if k_current < 1:
+            raise ValueError("K actual manual debe ser entero >= 1.")
+    else:
+        wait_metric_value = float(metrics.get(queue_metric_name, 0.0))
+        k_current = _extract_server_count(metrics, payload)
+
+    waiting_cost = cw * wait_metric_value
+    service_cost = cs * k_current
+    total_cost = waiting_cost + service_cost
+
+    economic = {
+        "cost_basis": queue_metric_name,
+        "Cw": cw,
+        "Cs": cs,
+        "K": k_current,
+        "wait_metric_value": wait_metric_value,
+        "waiting_cost": waiting_cost,
+        "service_cost": service_cost,
+        "total_cost": total_cost,
+        "formula": f"CT = Cw·{queue_metric_name} + K·Cs",
+        "recommendation_text": "Decisión base: usar la configuración actual y comparar alternativas de K para validar si existe un CT menor.",
+        "manual_mode": manual_economic,
+    }
+
+    if not optimize_k:
+        return economic
+
+    model_key = (model or "").strip().lower()
+    optimizable_models = {"mmk", "mgk", "finite_mmk", "mmk_infinite_finite_peps"}
+
+    if model_key not in optimizable_models:
+        economic["optimization"] = {
+            "enabled": False,
+            "message": "Este modelo no admite optimización por K (o K es fijo).",
+            "candidates": [],
+        }
+        economic["recommendation_text"] = "Decisión recomendada: mantener K actual (modelo sin optimización de servidores)."
+        return economic
+
+    k_min = int(payload.get("k_min", 1))
+    k_max = int(payload.get("k_max", max(k_current, 1)))
+    if k_min < 1 or k_max < k_min:
+        raise ValueError("Rango de K inválido: se requiere 1 <= k_min <= k_max.")
+
+    n_pop = int(payload.get("N", 1))
+    candidates = []
+    for candidate_k in range(k_min, k_max + 1):
+        if model_key in {"finite_mmk", "mmk_infinite_finite_peps"} and candidate_k > n_pop:
+            continue
+
+        candidate_payload = dict(payload)
+        candidate_payload["k"] = candidate_k
+        candidate_payload["model"] = model_key
+
+        try:
+            metrics_k = calculate_queue_metrics(model_key, candidate_payload)
+        except ValueError:
+            continue
+
+        metric_value_k = float(metrics_k.get(queue_metric_name, 0.0))
+        waiting_cost_k = cw * metric_value_k
+        service_cost_k = cs * candidate_k
+        total_cost_k = waiting_cost_k + service_cost_k
+
+        candidates.append({
+            "K": candidate_k,
+            queue_metric_name: metric_value_k,
+            "waiting_cost": waiting_cost_k,
+            "service_cost": service_cost_k,
+            "total_cost": total_cost_k,
+        })
+
+    if not candidates:
+        economic["optimization"] = {
+            "enabled": False,
+            "message": "No se encontraron alternativas estables en el rango de K indicado.",
+            "candidates": [],
+        }
+        economic["recommendation_text"] = "Decisión recomendada: mantener K actual y ampliar/revisar el rango de K para evaluar más alternativas estables."
+        return economic
+
+    best = min(candidates, key=lambda x: x["total_cost"])
+    savings = total_cost - best["total_cost"]
+
+    economic["optimization"] = {
+        "enabled": True,
+        "k_min": k_min,
+        "k_max": k_max,
+        "best": best,
+        "candidates": candidates,
+        "savings_vs_current": savings,
+        "message": "Se minimiza CT eligiendo el K con menor costo total en el rango analizado.",
+    }
+
+    if best["K"] == k_current:
+        economic["recommendation_text"] = (
+            f"Decisión recomendada: mantener K={k_current}, ya que minimiza el costo total en el rango evaluado."
+        )
+    elif savings > 0:
+        direction = "incrementar" if best["K"] > k_current else "reducir"
+        economic["recommendation_text"] = (
+            f"Decisión recomendada: {direction} K de {k_current} a {best['K']} para minimizar CT, "
+            f"con ahorro estimado de {savings:.6f} por período."
+        )
+    else:
+        economic["recommendation_text"] = (
+            f"Decisión sugerida por rango evaluado: K={best['K']} (CT mínimo dentro del rango), "
+            "aunque no mejora económicamente frente al escenario actual."
+        )
+
+    return economic
+
+
+def calculate_wait_time_optimization(model: str, payload: Dict) -> Dict:
+    model_key = (model or "").strip().lower()
+    target_metric = str(payload.get("wait_target_metric", "Wq")).strip()
+    target_max = _parse_real(payload.get("wait_target_max", 0), "Tiempo máximo objetivo")
+    k_min = int(payload.get("k_min", 1))
+    k_max = int(payload.get("k_max", 1))
+
+    if target_metric not in {"Wq", "W"}:
+        raise ValueError("wait_target_metric debe ser 'Wq' o 'W'.")
+    if target_max < 0:
+        raise ValueError("Tiempo máximo objetivo debe ser >= 0.")
+    if k_min < 1 or k_max < k_min:
+        raise ValueError("Rango de K inválido: se requiere 1 <= k_min <= k_max.")
+
+    optimizable_models = {"mmk", "mgk", "finite_mmk", "mmk_infinite_finite_peps"}
+    if model_key not in optimizable_models:
+        return {
+            "enabled": False,
+            "message": "Este modelo no admite optimización por K para objetivo de tiempo.",
+            "target_metric": target_metric,
+            "target_max": target_max,
+            "k_min": k_min,
+            "k_max": k_max,
+            "candidates": [],
+        }
+
+    n_pop = int(payload.get("N", 1))
+    candidates = []
+    for candidate_k in range(k_min, k_max + 1):
+        if model_key in {"finite_mmk", "mmk_infinite_finite_peps"} and candidate_k > n_pop:
+            continue
+
+        candidate_payload = dict(payload)
+        candidate_payload["k"] = candidate_k
+        candidate_payload["model"] = model_key
+
+        try:
+            metrics_k = calculate_queue_metrics(model_key, candidate_payload)
+        except ValueError:
+            continue
+
+        wq = float(metrics_k.get("Wq", 0.0))
+        w = float(metrics_k.get("W", 0.0))
+        metric_value = wq if target_metric == "Wq" else w
+
+        candidates.append({
+            "K": candidate_k,
+            "Wq": wq,
+            "W": w,
+            "target_value": metric_value,
+            "meets_target": metric_value <= target_max,
+        })
+
+    if not candidates:
+        return {
+            "enabled": False,
+            "message": "No se encontraron alternativas estables en el rango de K indicado.",
+            "target_metric": target_metric,
+            "target_max": target_max,
+            "k_min": k_min,
+            "k_max": k_max,
+            "candidates": [],
+        }
+
+    feasible = [c for c in candidates if c["meets_target"]]
+    best_feasible = min(feasible, key=lambda x: (x["K"], x["target_value"])) if feasible else None
+
+    return {
+        "enabled": True,
+        "message": "Se recomienda el menor K que cumple el objetivo de tiempo máximo.",
+        "target_metric": target_metric,
+        "target_max": target_max,
+        "k_min": k_min,
+        "k_max": k_max,
+        "best_feasible": best_feasible,
+        "candidates": candidates,
+    }
