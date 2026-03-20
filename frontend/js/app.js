@@ -4,7 +4,9 @@
  */
 
 const App = (() => {
-    const API_BASE = window.location.origin + '/api';
+    const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
+        ? window.APP_CONFIG.API_BASE
+        : (window.location.origin + '/api');
 
     // ── Mapeo de operaciones a símbolos ──
     const OP_SYMBOLS = {
@@ -153,10 +155,11 @@ const App = (() => {
         // Llamar al backend
         btn.classList.add('loading');
         try {
-            const response = await fetch(`${API_BASE}/matrix/operate`, {
+            const path = '/matrix/operate';
+            const response = await fetch(window.resolveApiUrl(path), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(window.buildApiPayload(path, payload)),
             });
 
             const data = await response.json();

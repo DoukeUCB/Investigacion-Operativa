@@ -10,7 +10,9 @@
  */
 
 const AbsorbingApp = (() => {
-    const API_BASE = window.location.origin + '/api';
+    const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
+        ? window.APP_CONFIG.API_BASE
+        : (window.location.origin + '/api');
     let initialized = false;
     let currentSize = 3;
 
@@ -277,10 +279,11 @@ const AbsorbingApp = (() => {
         btn.classList.add('loading');
 
         try {
-            const response = await fetch(`${API_BASE}/markov/operate`, {
+            const path = '/markov/operate';
+            const response = await fetch(window.resolveApiUrl(path), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(window.buildApiPayload(path, payload)),
             });
             const data = await response.json();
             showResult(data);
