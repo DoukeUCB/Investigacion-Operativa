@@ -21,13 +21,19 @@ queue_service = QueueService()
 def _cors_headers():
     return {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Appwrite-Project",
+        "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Max-Age": "86400",
+        "Vary": "Origin",
     }
 
 
 def _json_response(context, data: dict, status_code: int = 200):
     return context.res.json(data, status_code, _cors_headers())
+
+
+def _empty_response(context, status_code: int = 204):
+    return context.res.json({}, status_code, _cors_headers())
 
 
 def _extract_payload(request):
@@ -71,7 +77,7 @@ def main(context):
     method = str(getattr(request, "method", "POST")).upper()
 
     if method == "OPTIONS":
-        return context.res.empty(204, _cors_headers())
+        return _empty_response(context, 204)
 
     payload = _extract_payload(request)
     if not isinstance(payload, dict):
