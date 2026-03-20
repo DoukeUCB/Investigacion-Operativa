@@ -1,12 +1,9 @@
 (function () {
     const DEFAULT_API_BASE = window.location.origin + '/api';
-    const DEPLOY_API_BASE = ''; // Ej: 'https://tu-backend.onrender.com/api'
-    const APPWRITE_FUNCTION_URL = ''; // Ej: 'https://fra.cloud.appwrite.io/v1/functions/<functionId>/executions'
-    const DEPLOY_API_ENDPOINTS = {
-        // '/matrix/operate': 'https://<appwrite-function-url>',
-        // '/markov/operate': 'https://<appwrite-function-url>',
-        // '/queues/operate': 'https://<appwrite-function-url>',
-    };
+    const DEPLOY_API_BASE = '';
+    const DEPLOY_API_ENDPOINTS = {};
+    const APPWRITE_FUNCTION_URL = 'https://69bdb7da000754098ed0.fra.appwrite.run/';
+    const APPWRITE_PROJECT_ID = '69bdb29998768a4c0a9e';
 
     if (!window.APP_CONFIG) {
         window.APP_CONFIG = {};
@@ -29,9 +26,25 @@
 
     window.resolveApiUrl = function (path) {
         const endpoints = (window.APP_CONFIG && window.APP_CONFIG.API_ENDPOINTS) || {};
-        if (endpoints[path]) return endpoints[path];
+        if (endpoints[path]) {
+            let endpoint = endpoints[path];
+            const needsProject = endpoint.includes('cloud.appwrite.io/v1/functions/') && endpoint.includes('/executions');
+            if (needsProject && APPWRITE_PROJECT_ID && !endpoint.includes('project=')) {
+                const separator = endpoint.includes('?') ? '&' : '?';
+                endpoint = `${endpoint}${separator}project=${encodeURIComponent(APPWRITE_PROJECT_ID)}`;
+            }
+            return endpoint;
+        }
         const base = window.APP_CONFIG.API_BASE || DEFAULT_API_BASE;
         return `${base}${path}`;
+    };
+
+    window.buildApiHeaders = function () {
+        const headers = { 'Content-Type': 'application/json' };
+        if (APPWRITE_PROJECT_ID) {
+            headers['X-Appwrite-Project'] = APPWRITE_PROJECT_ID;
+        }
+        return headers;
     };
 
     window.buildApiPayload = function (path, payload) {

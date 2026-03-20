@@ -165,7 +165,7 @@ const TreeApp = (() => {
             const path = '/markov/operate';
             const response = await fetch(window.resolveApiUrl(path), {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: window.buildApiHeaders(),
                 body: JSON.stringify(window.buildApiPayload(path, payload)),
             });
             const data = await response.json();
