@@ -239,10 +239,14 @@ def _build_pn_finite_mm1(lambda_rate: float, mu: float, n_pop: int) -> List[floa
     return [term * p0 for term in terms]
 
 
-def _calc_finite_mm1(lambda_rate: float, mu: float, n_pop: int) -> Dict:
+def _calc_finite_mm1(lambda_rate: float, mu: float, n_pop: int, n: int | None = None) -> Dict:
     _require_positive(lambda_rate, "λ")
     _require_positive(mu, "μ")
     _require_int_ge(n_pop, "N", 1)
+    if n is not None:
+        _require_int_ge(n, "n", 0)
+        if n > n_pop:
+            raise ValueError("Para M/M/1/N (fuente finita), se requiere n <= N.")
 
     pn = _build_pn_finite_mm1(lambda_rate, mu, n_pop)
     p0 = pn[0]
@@ -257,7 +261,7 @@ def _calc_finite_mm1(lambda_rate: float, mu: float, n_pop: int) -> Dict:
 
     probs = [{"n": n, "P_n": pn[n]} for n in range(n_pop + 1)]
 
-    return {
+    result = {
         "model": "M/M/1/N (fuente finita)",
         "N": n_pop,
         "P0": p0,
@@ -270,6 +274,14 @@ def _calc_finite_mm1(lambda_rate: float, mu: float, n_pop: int) -> Dict:
         "P_system_full": pn[n_pop],
     }
 
+    if n is not None:
+        rho_n = ((n_pop - n) * lambda_rate) / mu
+        result["n"] = n
+        result["Pn"] = pn[n]
+        result["rho_n"] = rho_n
+
+    return result
+
 
 def _pn_finite_mmk(lambda_rate: float, mu: float, k: int, n_pop: int, n: int, p0: float) -> float:
     common = (factorial(n_pop) / factorial(n_pop - n)) * ((lambda_rate / mu) ** n)
@@ -278,13 +290,17 @@ def _pn_finite_mmk(lambda_rate: float, mu: float, k: int, n_pop: int, n: int, p0
     return common * (1.0 / (factorial(k) * (k ** (n - k)))) * p0
 
 
-def _calc_finite_mmk(lambda_rate: float, mu: float, k: int, n_pop: int) -> Dict:
+def _calc_finite_mmk(lambda_rate: float, mu: float, k: int, n_pop: int, n: int | None = None) -> Dict:
     _require_positive(lambda_rate, "λ")
     _require_positive(mu, "μ")
     _require_int_ge(k, "k", 1)
     _require_int_ge(n_pop, "N", 1)
     if k > n_pop:
         raise ValueError("Para fuente finita, se requiere k <= N.")
+    if n is not None:
+        _require_int_ge(n, "n", 0)
+        if n > n_pop:
+            raise ValueError("Para M/M/k/N (fuente finita), se requiere n <= N.")
 
     sum1 = 0.0
     for n in range(0, k + 1):
@@ -308,7 +324,7 @@ def _calc_finite_mmk(lambda_rate: float, mu: float, k: int, n_pop: int) -> Dict:
 
     probs = [{"n": n, "P_n": pn[n]} for n in range(n_pop + 1)]
 
-    return {
+    result = {
         "model": "M/M/k/N (fuente finita)",
         "k": k,
         "N": n_pop,
@@ -322,6 +338,12 @@ def _calc_finite_mmk(lambda_rate: float, mu: float, k: int, n_pop: int) -> Dict:
         "Pw": sum(pn[n] for n in range(k, n_pop + 1)),
         "P_system_full": pn[n_pop],
     }
+
+    if n is not None:
+        result["n"] = n
+        result["Pn"] = pn[n]
+
+    return result
 
 
 def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
@@ -372,6 +394,7 @@ def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
             _parse_real(payload.get("lambda_rate", 0), "λ"),
             _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("N", 1)),
+            n_optional,
         )
 
     if model == "finite_mmk":
@@ -380,6 +403,7 @@ def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
             _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("k", 1)),
             int(payload.get("N", 1)),
+            n_optional,
         )
 
     if model == "mmk_infinite_finite_peps":
@@ -388,6 +412,7 @@ def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
             _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("k", 1)),
             int(payload.get("N", 1)),
+            n_optional,
         )
         result["model"] = "M/M/k/∞/N/PEPS"
         return result

@@ -97,15 +97,16 @@ const QueueApp = (() => {
         const needsN = ['finite_mm1', 'finite_mmk', 'mmk_infinite_finite_peps'].includes(model);
         const needsEs2 = model === 'mg1';
         const needsCs2 = model === 'mgk';
-        const hasPnControls = ['mm1', 'mmk'].includes(model);
+        const hasPnInput = ['mm1', 'mmk', 'finite_mm1', 'finite_mmk', 'mmk_infinite_finite_peps'].includes(model);
+        const hasPnTableControls = ['mm1', 'mmk'].includes(model);
         const supportsKOptimization = canOptimizeByK(model);
 
         toggle('group-k', needsK);
         toggle('group-N', needsN);
         toggle('group-es2', needsEs2);
         toggle('group-cs2', needsCs2);
-        toggle('group-n', hasPnControls);
-        toggle('group-max-n', hasPnControls);
+        toggle('group-n', hasPnInput);
+        toggle('group-max-n', hasPnTableControls);
         toggle('group-k-range-wait', wantsWaitOptimization && supportsKOptimization);
         toggle('group-economic-inputs', wantsEconomic);
         toggle('group-manual-economic', wantsEconomic && wantsManualEconomic);
@@ -186,6 +187,16 @@ const QueueApp = (() => {
         if (['mm1', 'mmk'].includes(model)) {
             const nRaw = document.getElementById('queue-n').value.trim();
             payload.max_n = parseInt(document.getElementById('queue-max-n').value, 10);
+            if (nRaw !== '') payload.n = parseInt(nRaw, 10);
+        }
+
+        if (model === 'finite_mm1') {
+            const nRaw = document.getElementById('queue-n').value.trim();
+            if (nRaw !== '') payload.n = parseInt(nRaw, 10);
+        }
+
+        if (['finite_mmk', 'mmk_infinite_finite_peps'].includes(model)) {
+            const nRaw = document.getElementById('queue-n').value.trim();
             if (nRaw !== '') payload.n = parseInt(nRaw, 10);
         }
 
@@ -333,7 +344,7 @@ const QueueApp = (() => {
 
         const fields = [
             'rho', 'a', 'P0', 'Pn', 'Pw', 'Lq', 'L', 'Wq', 'W',
-            'lambda_eff', 'P_system_full', 'E_S2', 'C_s2', 'Pw_MMk'
+            'lambda_eff', 'P_system_full', 'E_S2', 'C_s2', 'Pw_MMk', 'rho_n'
         ];
 
         fields.forEach((key) => {
@@ -537,6 +548,7 @@ const QueueApp = (() => {
             E_S2: 'E[S²]',
             C_s2: 'C_s²',
             Pw_MMk: 'Pw(M/M/k)',
+            rho_n: 'ρ_n (estado n)',
         };
         return labels[key] || key;
     }

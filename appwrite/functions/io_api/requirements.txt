@@ -1,2 +1,0 @@
-# Reusar lógica existente del backend
-# (No se requiere Flask dentro de la Function)
