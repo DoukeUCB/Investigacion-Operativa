@@ -9,12 +9,11 @@ COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ── Código fuente ─────────────────────────────────────────────────────────────
+# backend/.env también se copia (está en el repo con los valores por defecto)
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 
-# ── Variables de entorno por defecto (desde .env.example) ─────────────────────
-COPY backend/.env.example ./backend/.env
-# PORT también se necesita como variable de shell para el CMD de gunicorn
+# PORT se necesita como variable de shell para el CMD de gunicorn
 ENV PORT=8080
 
 EXPOSE 8080

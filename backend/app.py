@@ -13,7 +13,7 @@ from services.queue_service import QueueService
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # carga backend/.env (generado desde .env.example en Docker)
+load_dotenv()  # carga backend/.env con los valores de configuración por defecto
 
 # ── Configuración ──
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
