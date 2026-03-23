@@ -8,11 +8,9 @@ on:
 
 permissions:
   contents: read
-  packages: write   # necesario para publicar en GitHub Container Registry
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: investigacion-operativa
 
 jobs:
   # ── 1. Lint / unit-test del backend (Python) ─────────────────────────────
@@ -65,9 +63,9 @@ jobs:
           curl -sf http://localhost:5000/
           docker stop test-app
 
-  # ── 3. Publicar imagen en GHCR (solo al hacer merge a main) ──────────────
+  # ── 3. Publicar imagen en Docker Hub (solo al hacer merge a main) ─────────
   deploy:
-    name: Deploy – Push to GHCR
+    name: Deploy – Push to Docker Hub
     runs-on: ubuntu-latest
     needs: docker-build
     # Solo se ejecuta en push directo a main (no en PRs)
@@ -75,23 +73,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Extract Docker metadata (tags & labels)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
             type=sha,prefix=,format=short
 
-      - name: Build & push Docker image to GHCR
+      - name: Build & push Docker image to Docker Hub
         uses: docker/build-push-action@v6
         with:
           context: .

@@ -139,11 +139,13 @@ El proyecto se despliega con **Docker**. Un único contenedor ejecuta el servido
 
 ### Imagen publicada (recomendado)
 
-Cada vez que se hace merge a `main`, GitHub Actions construye y publica automáticamente la imagen en **GitHub Container Registry**:
+Cada vez que se hace merge a `main`, GitHub Actions construye y publica automáticamente la imagen en **Docker Hub**:
 
 ```bash
 # Descargar y ejecutar la última versión publicada
-docker run -p 5000:8080 ghcr.io/doukeucb/investigacion-operativa:latest
+# Usa el mismo valor configurado en el secret DOCKERHUB_USERNAME del workflow
+DOCKERHUB_USERNAME=<dockerhub-username>
+docker run -p 5000:8080 ${DOCKERHUB_USERNAME}/investigacion-operativa:latest
 ```
 
 Abrir **http://localhost:5000** en el navegador.
@@ -186,7 +188,12 @@ El repositorio incluye `.github/workflows/ci.yml` con tres etapas encadenadas:
 |---|---|---|
 | **Backend tests** | PRs y merge a `main` | Verifica que los servicios Python importan correctamente |
 | **Docker build** | PRs y merge a `main` | Construye la imagen y comprueba que responde HTTP 200 |
-| **Deploy** | Solo al hacer merge a `main` | Publica la imagen en GHCR con tag `latest` y el SHA del commit |
+| **Deploy** | Solo al hacer merge a `main` | Publica la imagen en Docker Hub con tag `latest` y el SHA del commit |
+
+Para habilitar el deploy automático debes configurar estos **Secrets** en GitHub Actions:
+
+- `DOCKERHUB_USERNAME`: usuario de Docker Hub.
+- `DOCKERHUB_TOKEN`: access token de Docker Hub (no usar password de cuenta).
 
 ## Estructura de archivos
 
