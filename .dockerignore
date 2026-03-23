@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+ENV/
+
+# Variables de entorno locales con secretos reales (nunca subir al contenedor)
+# backend/.env se incluye porque contiene solo valores por defecto (sin secretos)
+.env
+**/.env
+!backend/.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentación (no necesaria en el contenedor)
+README.md
+
+# Node (por si acaso)
+node_modules/

@@ -111,7 +111,7 @@ Métricas reportadas según modelo: `ρ`, `P0`, `Pn`, `Pw`, `Lq`, `L`, `Wq`, `W`
 - Python 3.10+
 - pip
 
-## Instalación y ejecución
+## Instalación y ejecución (desarrollo local)
 
 ```bash
 # 1. Ir al directorio del proyecto
@@ -130,6 +130,63 @@ python app.py
 ```
 
 Abrir **http://localhost:5000** en el navegador.
+
+---
+
+## Deployment – Docker
+
+El proyecto se despliega con **Docker**. Un único contenedor ejecuta el servidor gunicorn que expone la API REST y sirve el frontend estático.
+
+### Imagen publicada (recomendado)
+
+Cada vez que se hace merge a `main`, GitHub Actions construye y publica automáticamente la imagen en **GitHub Container Registry**:
+
+```bash
+# Descargar y ejecutar la última versión publicada
+docker run -p 5000:8080 ghcr.io/doukeucb/investigacion-operativa:latest
+```
+
+Abrir **http://localhost:5000** en el navegador.
+
+### Construir localmente
+
+**Requisitos:** [Docker](https://docs.docker.com/get-docker/) instalado.
+
+```bash
+# Construir la imagen
+docker build -t investigacion-operativa .
+
+# Ejecutar el contenedor
+docker run -p 5000:8080 investigacion-operativa
+```
+
+### Docker Compose (desarrollo local)
+
+```bash
+docker compose up --build
+```
+
+La app queda disponible en **http://localhost:5000**.
+
+### Variables de entorno
+
+Copia `backend/.env.example` a `backend/.env` y ajusta según necesites:
+
+| Variable | Valor por defecto | Descripción |
+|---|---|---|
+| `PORT` | `8080` | Puerto en que escucha el servidor dentro del contenedor |
+| `HOST` | `0.0.0.0` | Host de escucha (necesario para recibir tráfico externo) |
+| `FLASK_DEBUG` | `false` | Activa el modo debug (solo desarrollo local) |
+
+### CI/CD con GitHub Actions
+
+El repositorio incluye `.github/workflows/ci.yml` con tres etapas encadenadas:
+
+| Etapa | Cuándo | Qué hace |
+|---|---|---|
+| **Backend tests** | PRs y merge a `main` | Verifica que los servicios Python importan correctamente |
+| **Docker build** | PRs y merge a `main` | Construye la imagen y comprueba que responde HTTP 200 |
+| **Deploy** | Solo al hacer merge a `main` | Publica la imagen en GHCR con tag `latest` y el SHA del commit |
 
 ## Estructura de archivos
 
