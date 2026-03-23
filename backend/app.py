@@ -295,5 +295,8 @@ def serve_static(path):
 # ─────────────────── Main ───────────────────
 
 if __name__ == "__main__":
-    print("Servidor iniciado en http://localhost:5000")
-    app.run(debug=False, host="127.0.0.1", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    debug = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    print(f"Servidor iniciado en http://{host}:{port}")
+    app.run(debug=debug, host=host, port=port)
