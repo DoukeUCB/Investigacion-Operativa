@@ -11,6 +11,9 @@ from services.matrix_service import MatrixService
 from services.markov_service import MarkovService
 from services.queue_service import QueueService
 import os
+from dotenv import load_dotenv
+
+load_dotenv()  # carga backend/.env (generado desde .env.example en Docker)
 
 # ── Configuración ──
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

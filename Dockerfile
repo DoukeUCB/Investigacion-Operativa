@@ -12,12 +12,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
 
-# ── Variables de entorno por defecto ─────────────────────────────────────────
-# PORT: muchas plataformas cloud inyectan esta variable automáticamente.
-# HOST: 0.0.0.0 es necesario para recibir tráfico externo dentro del contenedor.
-ENV PORT=8080 \
-    HOST=0.0.0.0 \
-    FLASK_DEBUG=false
+# ── Variables de entorno por defecto (desde .env.example) ─────────────────────
+COPY backend/.env.example ./backend/.env
+# PORT también se necesita como variable de shell para el CMD de gunicorn
+ENV PORT=8080
 
 EXPOSE 8080
 

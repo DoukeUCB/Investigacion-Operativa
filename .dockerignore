@@ -14,8 +14,11 @@ venv/
 env/
 ENV/
 
-# Variables de entorno locales (nunca subir al contenedor)
+# Variables de entorno locales con secretos reales (nunca subir al contenedor)
+# .env.example sí se incluye — es copiado como .env dentro de la imagen
 .env
+**/.env
+!backend/.env.example
 
 # IDE
 .vscode/
