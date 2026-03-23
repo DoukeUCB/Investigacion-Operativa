@@ -143,8 +143,9 @@ Cada vez que se hace merge a `main`, GitHub Actions construye y publica automát
 
 ```bash
 # Descargar y ejecutar la última versión publicada
-# Reemplaza <tu-usuario-dockerhub> por el valor configurado en DOCKERHUB_USERNAME
-docker run -p 5000:8080 <tu-usuario-dockerhub>/investigacion-operativa:latest
+# Ejemplo: docker run -p 5000:8080 doukeucb/investigacion-operativa:latest
+# Reemplaza <dockerhub-username> por el valor configurado en DOCKERHUB_USERNAME
+docker run -p 5000:8080 <dockerhub-username>/investigacion-operativa:latest
 ```
 
 Abrir **http://localhost:5000** en el navegador.
