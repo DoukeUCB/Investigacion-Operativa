@@ -133,18 +133,9 @@ Abrir **http://localhost:5000** en el navegador.
 
 ---
 
-## Deployment
+## Deployment – Docker
 
-El proyecto es una aplicación **stateless** (sin base de datos) compuesta por:
-
-- **Backend:** API REST en Python/Flask.
-- **Frontend:** HTML + CSS + JavaScript servido directamente por Flask.
-
-Esto permite desplegar **todo desde un único contenedor Docker**, lo que lo hace portable a cualquier plataforma cloud.
-
-### Opción 1 – Docker (recomendado ✅)
-
-Es la opción más portable y reproducible. Un solo contenedor ejecuta el backend y sirve el frontend.
+El proyecto se despliega con **Docker**. Un único contenedor ejecuta el servidor gunicorn que expone la API REST y sirve el frontend estático.
 
 **Requisitos:** [Docker](https://docs.docker.com/get-docker/) instalado.
 
@@ -158,7 +149,7 @@ docker run -p 5000:8080 investigacion-operativa
 
 Abrir **http://localhost:5000** en el navegador.
 
-#### Con Docker Compose (recomendado para desarrollo local con Docker)
+### Docker Compose (desarrollo local)
 
 ```bash
 docker compose up --build
@@ -166,78 +157,23 @@ docker compose up --build
 
 La app queda disponible en **http://localhost:5000**.
 
-#### Variables de entorno
+### Variables de entorno
 
 Copia `backend/.env.example` a `backend/.env` y ajusta según necesites:
 
 | Variable | Valor por defecto | Descripción |
 |---|---|---|
-| `PORT` | `5000` | Puerto en que escucha el servidor |
-| `HOST` | `0.0.0.0` | Host de escucha (usar `0.0.0.0` en Docker/cloud) |
-| `FLASK_DEBUG` | `false` | Activa el modo debug (solo desarrollo) |
+| `PORT` | `8080` | Puerto en que escucha el servidor dentro del contenedor |
+| `HOST` | `0.0.0.0` | Host de escucha (necesario para recibir tráfico externo) |
+| `FLASK_DEBUG` | `false` | Activa el modo debug (solo desarrollo local) |
 
----
+### CI/CD con GitHub Actions
 
-### Opción 2 – GitHub Actions CI/CD
-
-El repositorio incluye `.github/workflows/ci.yml` que se ejecuta en cada push/PR a `main` y:
+El repositorio incluye `.github/workflows/ci.yml` que se ejecuta automáticamente en cada push/PR a `main`:
 
 1. Verifica que los servicios Python importan correctamente.
 2. Construye la imagen Docker.
 3. Levanta el contenedor y comprueba que responde HTTP 200.
-
-Para activarlo solo necesitas tener el repositorio en GitHub; el workflow corre automáticamente.
-
----
-
-### Opción 3 – Heroku
-
-Heroku detecta el `Procfile` incluido en el repositorio y levanta la app con `gunicorn`.
-
-```bash
-# Instalar Heroku CLI y hacer login
-heroku login
-
-# Crear la app
-heroku create nombre-de-tu-app
-
-# Deploy
-git push heroku main
-```
-
-Heroku inyecta la variable `PORT` automáticamente; el servidor la lee sin configuración adicional.
-
----
-
-### Opción 4 – Render / Railway (plataformas modernas)
-
-Ambas plataformas soportan despliegue directo desde GitHub con detección automática del `Dockerfile`.
-
-**Render:**
-1. Crear cuenta en [render.com](https://render.com).
-2. "New Web Service" → conectar el repositorio.
-3. Render detecta el `Dockerfile` automáticamente.
-4. Hacer deploy. La URL pública se genera al finalizar.
-
-**Railway:**
-1. Crear cuenta en [railway.app](https://railway.app).
-2. "New Project" → "Deploy from GitHub repo".
-3. Railway detecta el `Dockerfile` automáticamente.
-4. La variable `PORT` es inyectada automáticamente.
-
-Ambas plataformas ofrecen **tier gratuito** suficiente para este proyecto.
-
----
-
-### Opción 5 – Appwrite Cloud (funciones serverless)
-
-El frontend ya incluye soporte para Appwrite en `frontend/js/config.js`. Para activarlo:
-
-1. Crear una función en [Appwrite Cloud](https://cloud.appwrite.io) con el runtime Python 3.11.
-2. Subir el código del backend como función.
-3. Actualizar `APPWRITE_FUNCTION_URL` y `APPWRITE_PROJECT_ID` en `config.js`.
-
-> **Nota:** Esta opción requiere adaptar cada endpoint Flask a la interfaz de funciones de Appwrite.
 
 ## Estructura de archivos
 

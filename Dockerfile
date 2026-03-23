@@ -17,7 +17,7 @@ COPY frontend/ ./frontend/
 # HOST: 0.0.0.0 es necesario para recibir tráfico externo dentro del contenedor.
 ENV PORT=8080 \
     HOST=0.0.0.0 \
-    FLASK_DEBUG='false'
+    FLASK_DEBUG=false
 
 EXPOSE 8080
 
