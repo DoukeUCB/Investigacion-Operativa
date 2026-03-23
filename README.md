@@ -137,6 +137,19 @@ Abrir **http://localhost:5000** en el navegador.
 
 El proyecto se despliega con **Docker**. Un único contenedor ejecuta el servidor gunicorn que expone la API REST y sirve el frontend estático.
 
+### Imagen publicada (recomendado)
+
+Cada vez que se hace merge a `main`, GitHub Actions construye y publica automáticamente la imagen en **GitHub Container Registry**:
+
+```bash
+# Descargar y ejecutar la última versión publicada
+docker run -p 5000:8080 ghcr.io/doukeucb/investigacion-operativa:latest
+```
+
+Abrir **http://localhost:5000** en el navegador.
+
+### Construir localmente
+
 **Requisitos:** [Docker](https://docs.docker.com/get-docker/) instalado.
 
 ```bash
@@ -146,8 +159,6 @@ docker build -t investigacion-operativa .
 # Ejecutar el contenedor
 docker run -p 5000:8080 investigacion-operativa
 ```
-
-Abrir **http://localhost:5000** en el navegador.
 
 ### Docker Compose (desarrollo local)
 
@@ -169,11 +180,13 @@ Copia `backend/.env.example` a `backend/.env` y ajusta según necesites:
 
 ### CI/CD con GitHub Actions
 
-El repositorio incluye `.github/workflows/ci.yml` que se ejecuta automáticamente en cada push/PR a `main`:
+El repositorio incluye `.github/workflows/ci.yml` con tres etapas encadenadas:
 
-1. Verifica que los servicios Python importan correctamente.
-2. Construye la imagen Docker.
-3. Levanta el contenedor y comprueba que responde HTTP 200.
+| Etapa | Cuándo | Qué hace |
+|---|---|---|
+| **Backend tests** | PRs y merge a `main` | Verifica que los servicios Python importan correctamente |
+| **Docker build** | PRs y merge a `main` | Construye la imagen y comprueba que responde HTTP 200 |
+| **Deploy** | Solo al hacer merge a `main` | Publica la imagen en GHCR con tag `latest` y el SHA del commit |
 
 ## Estructura de archivos
 

@@ -1,4 +1,4 @@
-name: CI – Build & Test
+name: CI/CD – Build, Test & Deploy
 
 on:
   push:
@@ -8,6 +8,11 @@ on:
 
 permissions:
   contents: read
+  packages: write   # necesario para publicar en GitHub Container Registry
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   # ── 1. Lint / unit-test del backend (Python) ─────────────────────────────
@@ -59,3 +64,37 @@ jobs:
           done
           curl -sf http://localhost:5000/
           docker stop test-app
+
+  # ── 3. Publicar imagen en GHCR (solo al hacer merge a main) ──────────────
+  deploy:
+    name: Deploy – Push to GHCR
+    runs-on: ubuntu-latest
+    needs: docker-build
+    # Solo se ejecuta en push directo a main (no en PRs)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata (tags & labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=,format=short
+
+      - name: Build & push Docker image to GHCR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
