@@ -156,8 +156,8 @@ Si ya tienes la imagen en Docker Hub, puedes desplegarla en Heroku **sin reconst
 
 ```bash
 # Variables (reemplazar por tus valores)
-HEROKU_APP=<nombre-app-heroku>
-DOCKERHUB_USERNAME=<dockerhub-username>
+HEROKU_APP=tu-app-heroku
+DOCKERHUB_USERNAME=tu-usuario-dockerhub
 IMAGE=investigacion-operativa
 
 # 1) Login en Heroku Container Registry
@@ -166,7 +166,7 @@ heroku container:login
 # 2) Traer imagen publicada en Docker Hub
 docker pull ${DOCKERHUB_USERNAME}/${IMAGE}:latest
 
-# 3) Retagear para Heroku (tipo web)
+# 3) Reetiquetar para Heroku (tipo web)
 docker tag ${DOCKERHUB_USERNAME}/${IMAGE}:latest registry.heroku.com/${HEROKU_APP}/web
 
 # 4) Subir y liberar
