@@ -150,6 +150,45 @@ docker run -p 5000:8080 ${DOCKERHUB_USERNAME}/investigacion-operativa:latest
 
 Abrir **http://localhost:5000** en el navegador.
 
+### Deploy de la imagen en Heroku (usable desde celular)
+
+Si ya tienes la imagen en Docker Hub, puedes desplegarla en Heroku **sin reconstruir**:
+
+```bash
+# Variables (reemplazar por tus valores)
+HEROKU_APP=<nombre-app-heroku>
+DOCKERHUB_USERNAME=<dockerhub-username>
+IMAGE=investigacion-operativa
+
+# 1) Login en Heroku Container Registry
+heroku container:login
+
+# 2) Traer imagen publicada en Docker Hub
+docker pull ${DOCKERHUB_USERNAME}/${IMAGE}:latest
+
+# 3) Retagear para Heroku (tipo web)
+docker tag ${DOCKERHUB_USERNAME}/${IMAGE}:latest registry.heroku.com/${HEROKU_APP}/web
+
+# 4) Subir y liberar
+docker push registry.heroku.com/${HEROKU_APP}/web
+heroku container:release web --app ${HEROKU_APP}
+```
+
+Verifica:
+
+```bash
+heroku open --app ${HEROKU_APP}
+```
+
+Heroku te dará una URL pública `https://<tu-app>.herokuapp.com`; esa URL ya puedes abrirla directamente desde tu celular.
+
+> Nota: este contenedor ya escucha en `0.0.0.0` y usa la variable `PORT`, que es compatible con Heroku.
+
+### ¿Y Appwrite?
+
+Appwrite te sirve muy bien como backend/BaaS (Auth, DB, Storage), pero para publicar **esta imagen Docker web completa** la opción directa es Heroku (o un PaaS similar).  
+Si usas Appwrite además de Heroku, normalmente Appwrite queda como servicio de backend y Heroku como hosting público de la app.
+
 ### Construir localmente
 
 **Requisitos:** [Docker](https://docs.docker.com/get-docker/) instalado.
