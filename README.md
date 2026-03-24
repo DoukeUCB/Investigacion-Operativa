@@ -228,11 +228,13 @@ El repositorio incluye `.github/workflows/ci.yml` con tres etapas encadenadas:
 | **Backend tests** | PRs y merge a `main` | Verifica que los servicios Python importan correctamente |
 | **Docker build** | PRs y merge a `main` | Construye la imagen y comprueba que responde HTTP 200 |
 | **Deploy** | Solo al hacer merge a `main` | Publica la imagen en Docker Hub con tag `latest` y el SHA del commit |
+| **Deploy Heroku** | Solo al hacer merge a `main` | Publica en `registry.heroku.com/investigacion-operativa/web` y libera la versión (si existe `HEROKU_API_KEY`) |
 
 Para habilitar el deploy automático debes configurar estos **Secrets** en GitHub Actions:
 
 - `DOCKERHUB_USERNAME`: usuario de Docker Hub.
 - `DOCKERHUB_TOKEN`: access token de Docker Hub (no usar password de cuenta).
+- `HEROKU_API_KEY`: token de API de Heroku para publicar/liberar el contenedor en la app `investigacion-operativa`.
 
 ## Estructura de archivos
 
