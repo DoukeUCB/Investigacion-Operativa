@@ -150,6 +150,45 @@ docker run -p 5000:8080 ${DOCKERHUB_USERNAME}/investigacion-operativa:latest
 
 Abrir **http://localhost:5000** en el navegador.
 
+### Deploy de la imagen en Heroku (usable desde celular)
+
+Si ya tienes la imagen en Docker Hub, puedes desplegarla en Heroku **sin reconstruir**:
+
+```bash
+# Variables (reemplazar por tus valores)
+HEROKU_APP=tu-app-heroku
+DOCKERHUB_USERNAME=tu-usuario-dockerhub
+IMAGE=investigacion-operativa
+
+# 1) Login en Heroku Container Registry
+heroku container:login
+
+# 2) Traer imagen publicada en Docker Hub
+docker pull ${DOCKERHUB_USERNAME}/${IMAGE}:latest
+
+# 3) Re-etiquetar para Heroku (tipo web)
+docker tag ${DOCKERHUB_USERNAME}/${IMAGE}:latest registry.heroku.com/${HEROKU_APP}/web
+
+# 4) Subir y liberar
+docker push registry.heroku.com/${HEROKU_APP}/web
+heroku container:release web --app ${HEROKU_APP}
+```
+
+Verifica:
+
+```bash
+heroku open --app ${HEROKU_APP}
+```
+
+Heroku te dará una URL pública `https://<tu-app>.herokuapp.com`; esa URL ya puedes abrirla directamente desde tu celular.
+
+> Nota: este contenedor ya escucha en `0.0.0.0` y usa la variable `PORT`, que es compatible con Heroku.
+
+### ¿Y Appwrite?
+
+Appwrite te sirve muy bien como backend/BaaS (Auth, DB, Storage), pero para publicar **esta imagen Docker web completa** la opción directa es Heroku (o un PaaS similar).  
+Si usas Appwrite además de Heroku, normalmente Appwrite queda como servicio de backend y Heroku como hosting público de la app.
+
 ### Construir localmente
 
 **Requisitos:** [Docker](https://docs.docker.com/get-docker/) instalado.
@@ -189,11 +228,13 @@ El repositorio incluye `.github/workflows/ci.yml` con tres etapas encadenadas:
 | **Backend tests** | PRs y merge a `main` | Verifica que los servicios Python importan correctamente |
 | **Docker build** | PRs y merge a `main` | Construye la imagen y comprueba que responde HTTP 200 |
 | **Deploy** | Solo al hacer merge a `main` | Publica la imagen en Docker Hub con tag `latest` y el SHA del commit |
+| **Deploy Heroku** | Solo al hacer merge a `main` | Publica en `registry.heroku.com/investigacion-operativa/web` y libera la versión (si existe `HEROKU_API_KEY`) |
 
 Para habilitar el deploy automático debes configurar estos **Secrets** en GitHub Actions:
 
 - `DOCKERHUB_USERNAME`: usuario de Docker Hub.
 - `DOCKERHUB_TOKEN`: access token de Docker Hub (no usar password de cuenta).
+- `HEROKU_API_KEY`: token de API de Heroku para publicar/liberar el contenedor en la app `investigacion-operativa`.
 
 ## Estructura de archivos
 
