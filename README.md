@@ -166,7 +166,7 @@ heroku container:login
 # 2) Traer imagen publicada en Docker Hub
 docker pull ${DOCKERHUB_USERNAME}/${IMAGE}:latest
 
-# 3) Reetiquetar para Heroku (tipo web)
+# 3) Re-etiquetar para Heroku (tipo web)
 docker tag ${DOCKERHUB_USERNAME}/${IMAGE}:latest registry.heroku.com/${HEROKU_APP}/web
 
 # 4) Subir y liberar
