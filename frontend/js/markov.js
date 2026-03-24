@@ -9,9 +9,7 @@
  */
 
 const MarkovApp = (() => {
-    const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
-        ? window.APP_CONFIG.API_BASE
-        : (window.location.origin + '/api');
+    const API_BASE = window.location.origin + '/api';
     let initialized = false;
     let currentSize = 2;
 
@@ -201,11 +199,10 @@ const MarkovApp = (() => {
         };
 
         try {
-            const path = '/markov/operate';
-            const response = await fetch(window.resolveApiUrl(path), {
+            const response = await fetch(`${API_BASE}/markov/operate`, {
                 method: 'POST',
-                headers: window.buildApiHeaders(),
-                body: JSON.stringify(window.buildApiPayload(path, payload)),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
             });
             const data = await response.json();
             showMarkovResult(data);
@@ -235,11 +232,10 @@ const MarkovApp = (() => {
         btn.classList.add('loading');
 
         try {
-            const path = '/markov/operate';
-            const response = await fetch(window.resolveApiUrl(path), {
+            const response = await fetch(`${API_BASE}/markov/operate`, {
                 method: 'POST',
-                headers: window.buildApiHeaders(),
-                body: JSON.stringify(window.buildApiPayload(path, payload)),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
             });
             const data = await response.json();
             showMarkovResult(data);

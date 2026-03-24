@@ -65,6 +65,14 @@ body {
     gap: 16px;
 }
 
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 .logo {
     display: flex;
     align-items: center;
@@ -1667,6 +1675,11 @@ body {
     margin-bottom: 0.85rem;
 }
 
+.queue-theory-intro {
+    margin-top: -0.25rem;
+    margin-bottom: 0.9rem;
+}
+
 .queue-def-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -1678,19 +1691,20 @@ body {
     background: rgba(148, 163, 184, 0.06);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 0.75rem;
+    padding: 0.9rem;
+    box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.06);
 }
 
 .queue-def-card h4 {
     color: var(--accent-hover);
-    margin-bottom: 0.35rem;
-    font-size: 0.92rem;
+    margin-bottom: 0.45rem;
+    font-size: 0.94rem;
 }
 
 .queue-def-card p {
     color: var(--text-secondary);
-    font-size: 0.88rem;
-    margin-bottom: 0.25rem;
+    font-size: 0.89rem;
+    margin-bottom: 0.4rem;
 }
 
 .queue-def-card p:last-child {
@@ -1735,6 +1749,62 @@ body {
 
 .queue-list-block {
     margin-top: 0.9rem;
+}
+
+.queue-insight-block {
+    margin-top: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem;
+}
+
+.queue-insight-block.interpretation {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.35);
+}
+
+.queue-insight-block.recommendations {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.35);
+}
+
+.queue-insight-block h4 {
+    margin-bottom: 0.6rem;
+}
+
+.queue-insight-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+}
+
+.queue-insight-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding: 0.55rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-input);
+}
+
+.queue-insight-index {
+    min-width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    background: rgba(99, 102, 241, 0.3);
+}
+
+.queue-insight-text {
+    margin: 0;
+    font-size: 0.86rem;
+    color: var(--text-secondary);
 }
 
 .queue-list-block h4 {
@@ -1784,6 +1854,26 @@ body {
     background: rgba(99, 102, 241, 0.05);
 }
 
+.queue-requested-pn {
+    margin-top: 0.95rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    background: rgba(14, 116, 144, 0.18);
+    border: 1px solid rgba(34, 211, 238, 0.38);
+}
+.queue-requested-pn h4 {
+    margin: 0 0 0.45rem;
+    color: #67e8f9;
+    font-size: 0.98rem;
+}
+.queue-requested-pn-text {
+    margin: 0;
+    color: #e0f2fe;
+    font-weight: 700;
+    font-size: 1.02rem;
+    letter-spacing: 0.01em;
+}
+
 .queue-opt-summary {
     color: var(--text-secondary);
     margin-bottom: 0.35rem;
@@ -1815,6 +1905,10 @@ body {
     }
 
     .queue-def-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .queue-insight-grid {
         grid-template-columns: 1fr 1fr;
     }
 

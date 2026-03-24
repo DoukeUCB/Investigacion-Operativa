@@ -187,11 +187,6 @@ Heroku te dará una URL pública `https://<tu-app>.herokuapp.com`; esa URL ya pu
 
 > Nota: este contenedor ya escucha en `0.0.0.0` y usa la variable `PORT`, que es compatible con Heroku.
 
-### ¿Y Appwrite?
-
-Appwrite te sirve muy bien como backend/BaaS (Auth, DB, Storage), pero para publicar **esta imagen Docker web completa** la opción directa es Heroku (o un PaaS similar).  
-Si usas Appwrite además de Heroku, normalmente Appwrite queda como servicio de backend y Heroku como hosting público de la app.
-
 ### Construir localmente
 
 **Requisitos:** [Docker](https://docs.docker.com/get-docker/) instalado.

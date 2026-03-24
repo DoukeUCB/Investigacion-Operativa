@@ -201,31 +201,63 @@ def _calc_md1(lambda_rate: float, mu: float) -> Dict:
     }
 
 
-def _calc_mgk(lambda_rate: float, mu: float, k: int, c_s2: float) -> Dict:
-    _require_positive(c_s2 + 1.0, "C_s^2 + 1")
-    mmk = _mmk_core(lambda_rate, mu, k)
+def _calc_mgk(lambda_rate: float, mu: float, k: int, n: int | None = None) -> Dict:
+    """
+    Modelo M/G/k: llegadas Poisson, k servidores, servicio general.
+    
+    Fórmula de Pj (prob. de j servidores ocupados):
+        Pj = (ρ^j / j!) / Σ(ρ^i / i!, i=0..k)
+    donde ρ = λ/μ (intensidad de tráfico, no utilización).
+    """
+    _require_positive(lambda_rate, "λ")
+    _require_positive(mu, "μ")
+    _require_int_ge(k, "k", 1)
+    if n is not None:
+        _require_int_ge(n, "n", 0)
+        if n > k:
+            raise ValueError("Para M/G/k por estados, se requiere n <= k.")
 
-    pw_approx = mmk["Pw"] * ((1.0 + c_s2) / 2.0)
-    pw_approx = min(max(pw_approx, 0.0), 1.0)
+    rho = lambda_rate / mu
 
-    rho = mmk["rho"]
-    lq = pw_approx * (rho / (1.0 - rho)) * k
-    l = lq + (lambda_rate / mu)
-    wq = lq / lambda_rate
-    w = wq + (1.0 / mu)
+    # Calcular denominador de la fórmula de Pj
+    denominator = sum((rho ** i) / factorial(i) for i in range(k + 1))
+    if denominator <= EPS:
+        raise ValueError("No se puede calcular Pj: denominador no positivo.")
+
+    # Calcular Pj para j = 0, 1, ..., k
+    # Pj = (ρ^j / j!) / Σ(ρ^i / i!)
+    p_list = [((rho ** j) / factorial(j)) / denominator for j in range(k + 1)]
+    p0 = p_list[0]
+    p_k = p_list[k]
+
+    lambda_eff = lambda_rate * (1.0 - p_k)
+    l = sum(j * p_list[j] for j in range(k + 1))
+    if lambda_eff <= EPS:
+        raise ValueError("λ_eff es no positivo. Verifica parámetros del modelo M/G/k.")
+
+    w = l / lambda_eff
+    wq = w - (1.0 / mu)
+    lq = lambda_eff * wq
+
+    # Lista de probabilidades Pj
+    probs = [{"n": j, "P_n": p_list[j]} for j in range(k + 1)]
 
     return {
         "model": "M/G/k",
         "k": k,
         "rho": rho,
-        "C_s2": c_s2,
-        "Pw_MMk": mmk["Pw"],
-        "Pw": pw_approx,
-        "Lq": lq,
+        "P0": p0,
+        "Pk": p_k,
+        "P_system_full": p_k,
+        "Pw": p_k,
+        "lambda_eff": lambda_eff,
         "L": l,
-        "Wq": wq,
         "W": w,
-        "approximation": "Allen–Cunneen",
+        "Wq": wq,
+        "Lq": lq,
+        "probabilities": probs,
+        "formula_Pj": "Pj = (ρ^j / j!) / Σ(ρ^i / i!, i=0..k)",
+        **({"n": n, "Pn": p_list[n]} if n is not None else {}),
     }
 
 
@@ -386,7 +418,7 @@ def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
             _parse_real(payload.get("lambda_rate", 0), "λ"),
             _parse_real(payload.get("mu", 0), "μ"),
             int(payload.get("k", 1)),
-            _parse_real(payload.get("c_s2", 1.0), "C_s²"),
+            n_optional,
         )
 
     if model == "finite_mm1":

@@ -40,7 +40,7 @@
                             <option value="mmk">M/M/k (k servidores, fuente infinita)</option>
                             <option value="mg1">M/G/1</option>
                             <option value="md1">M/D/1</option>
-                            <option value="mgk">M/G/k (aprox. Allen–Cunneen)</option>
+                            <option value="mgk">M/G/k (estados 0..k)</option>
                         </select>
                     </div>
                 </div>
@@ -198,41 +198,43 @@
 
             <section class="config-panel queue-theory-panel">
                 <h3>Significado de las métricas principales</h3>
+                <p class="matrix-hint queue-theory-intro">Lectura sugerida: primero carga y capacidad, luego probabilidades de estado, y finalmente desempeño en cola/tiempos.</p>
                 <div class="queue-def-grid">
                     <article class="queue-def-card">
-                        <h4>P0</h4>
-                        <p>Probabilidad de que el sistema esté vacío. No hay clientes ni en cola ni en servicio.</p>
-                        <p class="queue-example">Ejemplo: en un banco, P0 es la probabilidad de que no haya nadie esperando ni siendo atendido.</p>
+                        <h4>1) Carga del sistema: ρ</h4>
+                        <p><strong>ρ</strong> indica qué tan exigido está el sistema. Mientras más cerca de 1, mayor riesgo de congestión.</p>
+                        <p class="queue-example">Lectura rápida: ρ bajo = holgura; ρ alto = colas y espera crecientes.</p>
                     </article>
                     <article class="queue-def-card">
-                        <h4>Pn</h4>
-                        <p>Probabilidad de que haya exactamente <strong>n</strong> clientes en el sistema (cola + servicio).</p>
-                        <p class="queue-example">P1: un cliente total, P2: dos clientes, etc.</p>
+                        <h4>2) Estado vacío: P0</h4>
+                        <p><strong>P0</strong> es la probabilidad de no tener clientes en el sistema.</p>
+                        <p class="queue-example">Útil para estimar inactividad de recursos (cajeros, ventanillas, máquinas).</p>
                     </article>
                     <article class="queue-def-card">
-                        <h4>Pw</h4>
-                        <p>Probabilidad de que un cliente que llega tenga que esperar.</p>
-                        <p class="queue-example">Equivale a encontrar todos los servidores ocupados.</p>
+                        <h4>3) Estado puntual: Pn</h4>
+                        <p><strong>Pn</strong> representa la probabilidad de tener exactamente <strong>n</strong> clientes en el sistema.</p>
+                        <p class="queue-example">Sirve para analizar saturación por niveles específicos (ej.: n=5).</p>
                     </article>
                     <article class="queue-def-card">
-                        <h4>Lq</h4>
-                        <p>Número promedio de clientes en cola (esperando, sin contar los que ya están siendo atendidos).</p>
+                        <h4>4) Espera al llegar: Pw</h4>
+                        <p><strong>Pw</strong> es la probabilidad de que un cliente tenga que esperar al arribar.</p>
+                        <p class="queue-example">Si Pw sube, la experiencia del cliente se deteriora.</p>
                     </article>
                     <article class="queue-def-card">
-                        <h4>L</h4>
-                        <p>Número promedio de clientes en el sistema (cola + servicio).</p>
-                        <p class="queue-example">Relación general: L = Lq + promedio en servicio.</p>
+                        <h4>5) Tamaños promedio: L y Lq</h4>
+                        <p><strong>Lq</strong> mide clientes esperando en cola. <strong>L</strong> mide clientes totales (cola + servicio).</p>
+                        <p class="queue-example">Si Lq es alto, el problema principal es espera; si L alto, hay saturación global.</p>
                     </article>
                     <article class="queue-def-card">
-                        <h4>Wq y W</h4>
-                        <p><strong>Wq</strong>: tiempo promedio de espera antes del servicio. <strong>W</strong>: tiempo promedio total dentro del sistema.</p>
+                        <h4>6) Tiempos promedio: Wq y W</h4>
+                        <p><strong>Wq</strong> es tiempo de cola. <strong>W</strong> es tiempo total en sistema.</p>
+                        <p class="queue-example">Para metas de servicio, normalmente se fija un máximo a Wq o W.</p>
                     </article>
-                </div>
-
-                <div class="queue-law-box">
-                    <h4>Leyes de Little</h4>
-                    <p>L = λ<sub>ef</sub> W &nbsp;&nbsp; y &nbsp;&nbsp; Lq = λ<sub>ef</sub> Wq</p>
-                    <p>Donde λ<sub>ef</sub> es la tasa efectiva de llegada que realmente entra al sistema.</p>
+                    <article class="queue-def-card">
+                        <h4>7) Tasa efectiva: λ_eff</h4>
+                        <p><strong>λ_eff</strong> es la tasa que realmente ingresa al sistema (especialmente relevante en fuentes finitas o sistemas con bloqueo).</p>
+                        <p class="queue-example">Cuando hay sistema lleno, λ_eff puede ser menor que λ nominal.</p>
+                    </article>
                 </div>
 
                 <h3 class="queue-model-table-title">Resumen de modelos</h3>
@@ -250,7 +252,7 @@
                         <tr><td>M/M/k</td><td>Poisson</td><td>Exponencial</td><td>k</td><td>Infinita</td><td>Varios servidores paralelos (cajas, ventanillas).</td></tr>
                         <tr><td>M/G/1</td><td>Poisson</td><td>General</td><td>1</td><td>Infinita</td><td>Un servidor con servicio no exponencial.</td></tr>
                         <tr><td>M/D/1</td><td>Poisson</td><td>Determinista</td><td>1</td><td>Infinita</td><td>Servicio casi constante.</td></tr>
-                        <tr><td>M/G/k</td><td>Poisson</td><td>General</td><td>k</td><td>Infinita</td><td>Varios servidores, servicio general (aprox.).</td></tr>
+                        <tr><td>M/G/k</td><td>Poisson</td><td>General</td><td>k</td><td>Infinita</td><td>Varios servidores, servicio general (método por estados).</td></tr>
                         <tr><td>M/M/1 fuente finita</td><td>Poisson dep.</td><td>Exponencial</td><td>1</td><td>Finita N</td><td>Población potencial limitada.</td></tr>
                         <tr><td>M/M/k fuente finita</td><td>Poisson dep.</td><td>Exponencial</td><td>k</td><td>Finita N</td><td>k servidores con población limitada.</td></tr>
                         <tr><td>M/M/k/∞/N/PEPS</td><td>Poisson dep.</td><td>Exponencial</td><td>k</td><td>Finita N</td><td>Caso finito con disciplina FIFO/PEPS.</td></tr>
@@ -282,7 +284,6 @@
         </footer>
     </div>
 
-    <script src="js/config.js"></script>
     <script src="js/queues.js"></script>
 </body>
 </html>

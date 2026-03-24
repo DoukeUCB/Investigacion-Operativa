@@ -1,7 +1,5 @@
 const QueueApp = (() => {
-    const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE)
-        ? window.APP_CONFIG.API_BASE
-        : (window.location.origin + '/api');
+    const API_BASE = window.location.origin + '/api';
     let activeTab = 'infinite';
 
     const MODEL_NOTES = {
@@ -9,7 +7,7 @@ const QueueApp = (() => {
         mmk: 'M/M/k: fuente infinita con k servidores (Erlang-C). Requiere ρ = λ/(kμ) < 1.',
         mg1: 'M/G/1: 1 servidor, tiempo de servicio general. Requiere E[S²].',
         md1: 'M/D/1: 1 servidor, servicio determinista.',
-        mgk: 'M/G/k: aproximación de Allen–Cunneen usando C_s².',
+        mgk: 'M/G/k: cálculo por estados 0..k con Pj, PK, λ_eff y métricas derivadas.',
         finite_mm1: 'M/M/1/N: población finita N, 1 servidor.',
         finite_mmk: 'M/M/k/N: población finita N y k servidores.',
         mmk_infinite_finite_peps: 'M/M/k/∞/N/PEPS: misma base de estados que M/M/k/N finito.',
@@ -96,8 +94,8 @@ const QueueApp = (() => {
         const needsK = ['mmk', 'mgk', 'finite_mmk', 'mmk_infinite_finite_peps'].includes(model);
         const needsN = ['finite_mm1', 'finite_mmk', 'mmk_infinite_finite_peps'].includes(model);
         const needsEs2 = model === 'mg1';
-        const needsCs2 = model === 'mgk';
-        const hasPnInput = ['mm1', 'mmk', 'finite_mm1', 'finite_mmk', 'mmk_infinite_finite_peps'].includes(model);
+        const needsCs2 = false;
+        const hasPnInput = ['mm1', 'mmk', 'mgk', 'finite_mm1', 'finite_mmk', 'mmk_infinite_finite_peps'].includes(model);
         const hasPnTableControls = ['mm1', 'mmk'].includes(model);
         const supportsKOptimization = canOptimizeByK(model);
 
@@ -180,22 +178,18 @@ const QueueApp = (() => {
             payload.e_s2 = parseRealInput(document.getElementById('queue-es2').value, 'E[S²]');
         }
 
-        if (model === 'mgk') {
-            payload.c_s2 = parseRealInput(document.getElementById('queue-cs2').value, 'C_s²');
-        }
-
         if (['mm1', 'mmk'].includes(model)) {
             const nRaw = document.getElementById('queue-n').value.trim();
             payload.max_n = parseInt(document.getElementById('queue-max-n').value, 10);
             if (nRaw !== '') payload.n = parseInt(nRaw, 10);
         }
 
-        if (model === 'finite_mm1') {
+        if (model === 'mgk') {
             const nRaw = document.getElementById('queue-n').value.trim();
             if (nRaw !== '') payload.n = parseInt(nRaw, 10);
         }
 
-        if (['finite_mmk', 'mmk_infinite_finite_peps'].includes(model)) {
+        if (['finite_mm1', 'finite_mmk', 'mmk_infinite_finite_peps'].includes(model)) {
             const nRaw = document.getElementById('queue-n').value.trim();
             if (nRaw !== '') payload.n = parseInt(nRaw, 10);
         }
@@ -262,11 +256,10 @@ const QueueApp = (() => {
 
         try {
             const payload = getPayload();
-            const path = '/queues/operate';
-            const response = await fetch(window.resolveApiUrl(path), {
+            const response = await fetch(`${API_BASE}/queues/operate`, {
                 method: 'POST',
-                headers: window.buildApiHeaders(),
-                body: JSON.stringify(window.buildApiPayload(path, payload)),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
             });
             const data = await response.json();
             showResult(data);
@@ -307,13 +300,15 @@ const QueueApp = (() => {
         }
 
         content.appendChild(buildMetricsTable(r));
+        const requestedPn = buildRequestedPnBlock(r);
+        if (requestedPn) content.appendChild(requestedPn);
         content.appendChild(renderDiagnosis(buildDiagnosis(r)));
 
         const formulaHint = renderFormulaHint(r);
         if (formulaHint) content.appendChild(formulaHint);
 
         if (r.approximation) {
-            content.appendChild(el('p', 'matrix-hint', `Aproximación usada: ${r.approximation}`));
+            content.appendChild(el('p', 'matrix-hint', `Método usado: ${r.approximation}`));
         }
 
         if (Array.isArray(r.probabilities) && r.probabilities.length > 0) {
@@ -322,12 +317,12 @@ const QueueApp = (() => {
 
         const interpretation = buildInterpretation(r);
         if (interpretation.length > 0) {
-            content.appendChild(buildListBlock('Interpretación', interpretation, 'markov-interpretation'));
+            content.appendChild(buildInsightCards('Interpretación del resultado', interpretation, 'interpretation'));
         }
 
         const recommendations = buildRecommendations(r, buildDiagnosis(r));
         if (recommendations.length > 0) {
-            content.appendChild(buildListBlock('Recomendaciones', recommendations, 'markov-interpretation queue-reco'));
+            content.appendChild(buildInsightCards('Recomendaciones prácticas', recommendations, 'recommendations'));
         }
 
         section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -344,7 +339,7 @@ const QueueApp = (() => {
 
         const fields = [
             'rho', 'a', 'P0', 'Pn', 'Pw', 'Lq', 'L', 'Wq', 'W',
-            'lambda_eff', 'P_system_full', 'E_S2', 'C_s2', 'Pw_MMk', 'rho_n'
+            'lambda_eff', 'P_system_full', 'E_S2', 'C_s2', 'Pw_MMk'
         ];
 
         fields.forEach((key) => {
@@ -357,6 +352,16 @@ const QueueApp = (() => {
 
         wrapper.appendChild(table);
         return wrapper;
+    }
+
+    function buildRequestedPnBlock(r) {
+        if (r.n === undefined || r.Pn === undefined) return null;
+
+        const block = el('div', 'queue-requested-pn');
+        block.appendChild(el('h4', '', 'Probabilidad solicitada'));
+        block.appendChild(el('p', 'queue-requested-pn-text', `P${r.n} = ${formatNumber(r.Pn)}`));
+        block.appendChild(el('p', 'matrix-hint', 'Corresponde a la probabilidad de observar exactamente n clientes/servidores ocupados según el modelo seleccionado.'));
+        return block;
     }
 
     function buildEconomicBlock(economic) {
@@ -521,14 +526,21 @@ const QueueApp = (() => {
         return section;
     }
 
-    function buildListBlock(title, items, className) {
-        const block = el('div', className + ' queue-list-block');
+    function buildInsightCards(title, items, variant) {
+        const block = el('div', `queue-insight-block ${variant}`);
         block.appendChild(el('h4', '', title));
-        const ul = document.createElement('ul');
-        items.forEach((item) => {
-            ul.appendChild(el('li', '', item));
+
+        const grid = el('div', 'queue-insight-grid');
+        items.forEach((item, index) => {
+            const card = el('article', 'queue-insight-card');
+            const badge = el('span', 'queue-insight-index', String(index + 1));
+            const text = el('p', 'queue-insight-text', item);
+            card.appendChild(badge);
+            card.appendChild(text);
+            grid.appendChild(card);
         });
-        block.appendChild(ul);
+
+        block.appendChild(grid);
         return block;
     }
 
@@ -548,7 +560,6 @@ const QueueApp = (() => {
             E_S2: 'E[S²]',
             C_s2: 'C_s²',
             Pw_MMk: 'Pw(M/M/k)',
-            rho_n: 'ρ_n (estado n)',
         };
         return labels[key] || key;
     }
@@ -574,7 +585,7 @@ const QueueApp = (() => {
         } else if (modelName.includes('m/d/1')) {
             lines.push('M/D/1: el servicio constante suele reducir espera frente a modelos de servicio aleatorio.');
         } else if (modelName.includes('m/g/k')) {
-            lines.push('M/G/k: los resultados se basan en una aproximación (Allen–Cunneen).');
+            lines.push('M/G/k: se usa distribución de estados 0..k para obtener PK, λ_eff y métricas promedio.');
         }
 
         if (r.P0 !== undefined) lines.push(`P0 = ${formatNumber(r.P0)}: probabilidad de sistema vacío.`);
@@ -647,7 +658,7 @@ const QueueApp = (() => {
         } else if (modelName.includes('m/d/1')) {
             formulaText = 'Relación clave: Lq = ρ² / (2(1-ρ)) con servicio determinista.';
         } else if (modelName.includes('m/g/k')) {
-            formulaText = 'Aproximación de Allen–Cunneen basada en Pw(M/M/k) y C_s².';
+            formulaText = 'Relaciones clave: Pj normalizado en j=0..k, PK=P(k), λ_eff=λ(1−PK), W=L/λ_eff.';
         } else if (modelName.includes('/n') || modelName.includes('fuente finita')) {
             formulaText = 'Fuente finita: λ_eff depende de la población restante fuera del sistema.';
         }
