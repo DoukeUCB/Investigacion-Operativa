@@ -154,6 +154,9 @@ Abrir **http://localhost:5000** en el navegador.
 
 Si ya tienes la imagen en Docker Hub, puedes desplegarla en Heroku **sin reconstruir**:
 
+> Este repo ya incluye `heroku.yml`, necesario cuando la app en Heroku está configurada con método de deploy **container**.  
+> Así se evita el error: `Your app does not include a heroku.yml build manifest`.
+
 ```bash
 # Variables (reemplazar por tus valores)
 HEROKU_APP=tu-app-heroku
