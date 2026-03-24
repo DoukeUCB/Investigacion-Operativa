@@ -2,12 +2,13 @@
     const DEFAULT_API_BASE = window.location.origin + '/api';
     const DEPLOY_API_BASE = '';
     const DEPLOY_API_ENDPOINTS = {};
-    const APPWRITE_FUNCTION_URL = 'https://fra.cloud.appwrite.io/v1/functions/69bdb7da000754098ed0/executions';
-    const APPWRITE_PROJECT_ID = '69bdb29998768a4c0a9e';
 
     if (!window.APP_CONFIG) {
         window.APP_CONFIG = {};
     }
+
+    const APPWRITE_FUNCTION_URL = window.APP_CONFIG.APPWRITE_FUNCTION_URL || '';
+    const APPWRITE_PROJECT_ID = window.APP_CONFIG.APPWRITE_PROJECT_ID || '';
 
     const appwriteEndpoints = APPWRITE_FUNCTION_URL
         ? {
