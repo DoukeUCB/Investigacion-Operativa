@@ -339,7 +339,7 @@ const QueueApp = (() => {
 
         const fields = [
             'rho', 'a', 'P0', 'Pn', 'Pw', 'Lq', 'L', 'Wq', 'W',
-            'lambda_eff', 'P_system_full', 'E_S2', 'C_s2', 'Pw_MMk'
+            'lambda_eff', 'P_system_full', 'E_S', 'E_S2', 'Var_S', 'Lq_equivalent', 'C_s2', 'Pw_MMk'
         ];
 
         fields.forEach((key) => {
@@ -557,7 +557,10 @@ const QueueApp = (() => {
             W: 'W',
             lambda_eff: 'λ_eff',
             P_system_full: 'P(sistema lleno)',
+            E_S: 'E[S]',
             E_S2: 'E[S²]',
+            Var_S: 'Var(S)',
+            Lq_equivalent: 'Lq (forma equivalente)',
             C_s2: 'C_s²',
             Pw_MMk: 'Pw(M/M/k)',
         };
@@ -654,7 +657,7 @@ const QueueApp = (() => {
         } else if (modelName.includes('m/m/k')) {
             formulaText = 'Relaciones clave: ρ = λ/(kμ), Pw por Erlang-C, W = Wq + 1/μ.';
         } else if (modelName.includes('m/g/1')) {
-            formulaText = 'Pollaczek–Khinchine: Lq = λ²E[S²] / (2(1-ρ)).';
+            formulaText = 'M/G/1: ρ=λ/μ, E[S]=1/μ, Lq=λ²E[S²]/(2(1−ρ)) ≡ (ρ²+λ²Var(S))/(2(1−ρ)), L=Lq+ρ, Wq=Lq/λ, W=Wq+1/μ.';
         } else if (modelName.includes('m/d/1')) {
             formulaText = 'Relación clave: Lq = ρ² / (2(1-ρ)) con servicio determinista.';
         } else if (modelName.includes('m/g/k')) {

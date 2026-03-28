@@ -155,9 +155,15 @@ def _calc_mg1(lambda_rate: float, mu: float, e_s2: float) -> Dict:
     rho = lambda_rate / mu
     _check_stability(rho, "M/G/1")
 
+    e_s = 1.0 / mu
+    var_s = e_s2 - (e_s ** 2)
+    if var_s < 0 and abs(var_s) <= EPS:
+        var_s = 0.0
+
     p0 = 1.0 - rho
     pw = rho
     lq = (lambda_rate ** 2) * e_s2 / (2.0 * (1.0 - rho))
+    lq_equivalent = ((rho ** 2) + ((lambda_rate ** 2) * var_s)) / (2.0 * (1.0 - rho))
     l = lq + rho
     wq = lq / lambda_rate
     w = wq + (1.0 / mu)
@@ -168,10 +174,13 @@ def _calc_mg1(lambda_rate: float, mu: float, e_s2: float) -> Dict:
         "P0": p0,
         "Pw": pw,
         "Lq": lq,
+        "Lq_equivalent": lq_equivalent,
         "L": l,
         "Wq": wq,
         "W": w,
+        "E_S": e_s,
         "E_S2": e_s2,
+        "Var_S": var_s,
     }
 
 
