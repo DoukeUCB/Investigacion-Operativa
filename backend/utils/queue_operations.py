@@ -159,6 +159,7 @@ def _calc_mg1(lambda_rate: float, mu: float, e_s2: float) -> Dict:
     var_s = e_s2 - (e_s ** 2)
     if var_s < 0 and abs(var_s) <= EPS:
         var_s = 0.0
+    sigma_s = (var_s ** 0.5) if var_s >= 0 else float("nan")
 
     p0 = 1.0 - rho
     pw = rho
@@ -178,6 +179,7 @@ def _calc_mg1(lambda_rate: float, mu: float, e_s2: float) -> Dict:
         "L": l,
         "Wq": wq,
         "W": w,
+        "Sigma_S": sigma_s,
         "E_S": e_s,
         "E_S2": e_s2,
         "Var_S": var_s,
@@ -410,10 +412,20 @@ def calculate_queue_metrics(model: str, payload: Dict) -> Dict:
         )
 
     if model == "mg1":
+        mu_value = _parse_real(payload.get("mu", 0), "μ")
+        sigma_s_raw = payload.get("sigma_s")
+        if sigma_s_raw is not None and str(sigma_s_raw) != "":
+            sigma_s = _parse_real(sigma_s_raw, "σ (desviación estándar de servicio)")
+            if sigma_s < 0:
+                raise ValueError("σ (desviación estándar de servicio) debe ser >= 0.")
+            e_s2_value = (sigma_s ** 2) + ((1.0 / mu_value) ** 2)
+        else:
+            e_s2_value = _parse_real(payload.get("e_s2", 0), "E[S²]")
+
         return _calc_mg1(
             _parse_real(payload.get("lambda_rate", 0), "λ"),
-            _parse_real(payload.get("mu", 0), "μ"),
-            _parse_real(payload.get("e_s2", 0), "E[S²]"),
+            mu_value,
+            e_s2_value,
         )
 
     if model == "md1":

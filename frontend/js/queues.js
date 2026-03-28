@@ -5,7 +5,7 @@ const QueueApp = (() => {
     const MODEL_NOTES = {
         mm1: 'M/M/1: fuente infinita con 1 servidor. Requiere ρ = λ/μ < 1.',
         mmk: 'M/M/k: fuente infinita con k servidores (Erlang-C). Requiere ρ = λ/(kμ) < 1.',
-        mg1: 'M/G/1: 1 servidor, tiempo de servicio general. Requiere E[S²].',
+        mg1: 'M/G/1: 1 servidor, tiempo de servicio general. Usa σ (desviación estándar) para calcular E[S²].',
         md1: 'M/D/1: 1 servidor, servicio determinista.',
         mgk: 'M/G/k: cálculo por estados 0..k con Pj, PK, λ_eff y métricas derivadas.',
         finite_mm1: 'M/M/1/N: población finita N, 1 servidor.',
@@ -175,7 +175,7 @@ const QueueApp = (() => {
         }
 
         if (model === 'mg1') {
-            payload.e_s2 = parseRealInput(document.getElementById('queue-es2').value, 'E[S²]');
+            payload.sigma_s = parseRealInput(document.getElementById('queue-es2').value, 'σ (desviación estándar de servicio)');
         }
 
         if (['mm1', 'mmk'].includes(model)) {
@@ -339,7 +339,7 @@ const QueueApp = (() => {
 
         const fields = [
             'rho', 'a', 'P0', 'Pn', 'Pw', 'Lq', 'L', 'Wq', 'W',
-            'lambda_eff', 'P_system_full', 'E_S', 'E_S2', 'Var_S', 'Lq_equivalent', 'C_s2', 'Pw_MMk'
+            'lambda_eff', 'P_system_full', 'Sigma_S', 'E_S', 'E_S2', 'Var_S', 'Lq_equivalent', 'C_s2', 'Pw_MMk'
         ];
 
         fields.forEach((key) => {
@@ -557,6 +557,7 @@ const QueueApp = (() => {
             W: 'W',
             lambda_eff: 'λ_eff',
             P_system_full: 'P(sistema lleno)',
+            Sigma_S: 'σ (desv. estándar)',
             E_S: 'E[S]',
             E_S2: 'E[S²]',
             Var_S: 'Var(S)',
@@ -584,7 +585,7 @@ const QueueApp = (() => {
         } else if (modelName.includes('m/m/k')) {
             lines.push('M/M/k: la carga se distribuye entre servidores paralelos; Pw y Wq muestran el beneficio de la capacidad paralela.');
         } else if (modelName.includes('m/g/1')) {
-            lines.push('M/G/1: la variabilidad del servicio (E[S²]) impacta directamente la cola.');
+            lines.push('M/G/1: la variabilidad del servicio (σ o Var(S)) impacta directamente la cola y los tiempos de espera.');
         } else if (modelName.includes('m/d/1')) {
             lines.push('M/D/1: el servicio constante suele reducir espera frente a modelos de servicio aleatorio.');
         } else if (modelName.includes('m/g/k')) {
